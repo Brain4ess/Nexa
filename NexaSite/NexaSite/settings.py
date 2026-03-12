@@ -40,6 +40,13 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    "apps.core",
+    "apps.users",
+    "apps.catalog",
+    "apps.categories",
+    "apps.cart",
+    "apps.orders",
+    "apps.reviews",
 ]
 
 MIDDLEWARE = [
@@ -76,18 +83,14 @@ WSGI_APPLICATION = 'NexaSite.wsgi.application'
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+    "default": {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": "nexa",
+        "USER": "nexa_user",
+        "PASSWORD": environ.get("POSTGRES_DB_KEY"),
+        "HOST": "localhost",
+        "PORT": "5432",
     }
-    # 'default': {
-    #     'ENGINE': 'django.db.backends.postgresql',
-    #     'NAME': 'NexaDB',
-    #     'USER': 'postgres',
-    #     'PASSWORD': environ.get("POSTGRES_NEXA_DB_KEY"),
-    #     'HOST': 'localhost',
-    #     'PORT': '5432',
-    # }
 }
 
 
@@ -126,3 +129,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = 'static/'
+
+#
+
+AUTH_USER_MODEL = "users.User"
