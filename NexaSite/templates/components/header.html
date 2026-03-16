@@ -1,0 +1,67 @@
+{% load static %}
+<header class="header">
+    <div class="header-container">
+        <div class="logo">
+            <a href="">Nexa</a>
+        </div>
+
+        <nav class="nav">
+            <ul class="nav-list">
+                <li><a href="">Главная</a></li>
+                <li><a href="categories.html">Категории</a></li>
+                <li><a href="catalog.html">Каталог</a></li>
+                <li><a href="brands.html">Бренды</a></li>
+                <li><a href="contact.html">Контакты</a></li>
+            </ul>
+        </nav>
+
+        <div class="header-actions">
+            <button class="theme-toggle" id="themeToggle">
+                <img id="themeIcon" src="{% static 'images/white_theme_icon.png' %}" alt="theme">
+            </button>
+            <a href="cart.html" class="cart">Корзина</a>
+            <a href="account.html" class="account">Вход</a>
+            <button class="hamburger" id="hamburger">&#9776;</button>
+        </div>
+    </div>
+
+    <nav class="mobile-nav" id="mobileNav">
+        <ul>
+            <li><a href="">Главная</a></li>
+            <li><a href="categories.html">Категории</a></li>
+            <li><a href="catalog.html">Каталог</a></li>
+            <li><a href="brands.html">Бренды</a></li>
+            <li><a href="contact.html">Контакты</a></li>
+            <li><a href="cart.html">Корзина</a></li>
+            <li><a href="account.html">Вход</a></li>
+        </ul>
+    </nav>
+</header>
+
+<script>
+    const themeToggle = document.getElementById("themeToggle");
+    const themeIcon = document.getElementById("themeIcon");
+
+    function updateThemeIcon() {
+        if (document.body.classList.contains("dark-theme")) {
+            themeIcon.src = "{% static 'images/black_theme_icon.png' %}";
+        } else {
+            themeIcon.src = "{% static 'images/white_theme_icon.png' %}";
+        }
+    }
+
+    themeToggle.addEventListener("click", () => {
+        document.body.classList.toggle("dark-theme");
+        document.body.classList.toggle("light-theme");
+        updateThemeIcon();
+    });
+
+    updateThemeIcon();
+
+    const hamburger = document.getElementById("hamburger");
+    const mobileNav = document.getElementById("mobileNav");
+
+    hamburger.addEventListener("click", () => {
+        mobileNav.classList.toggle("active");
+    });
+</script>

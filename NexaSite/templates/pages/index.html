@@ -1,0 +1,40 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nexa — Главная</title>
+
+    <link rel="stylesheet" href="{% static 'css/header.css' %}">
+    <link rel="stylesheet" href="{% static 'css/footer.css' %}">
+    <link rel="stylesheet" href="{% static 'css/index.css' %}">
+
+    <script src="{% static 'js/theme.js' %}" defer></script>
+</head>
+
+<body class="light-theme">
+    {% include "components/header.html" %}
+    <main class="container">
+        <section class="hero">
+            <h1 class="title">Добро пожаловать в Nexa</h1>
+            <p class="subtitle">
+                Лучшие комплектующие для вашего ПК — видеокарты, процессоры, материнские платы и память.
+            </p>
+            <!-- <a href="#" class="cta catalog-button">Каталог товаров</a> -->
+        </section>
+        <section class="section">
+            <h3>Популярные категории</h3>
+            <div style="display:flex;gap:20px;flex-wrap:wrap;margin-top:12px;">
+                <a href="#" class="card" style="flex:1 1 200px;text-align:center;">Видеокарты</a>
+                <a href="#" class="card" style="flex:1 1 200px;text-align:center;">Процессоры</a>
+                <a href="#" class="card" style="flex:1 1 200px;text-align:center;">Материнские платы</a>
+                <a href="#" class="card" style="flex:1 1 200px;text-align:center;">Оперативная память</a>
+            </div>
+        </section>
+    </main>
+    <!-- {% include "components/footer.html" %} -->
+</body>
+
+</html>

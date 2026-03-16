@@ -1,0 +1,156 @@
+.header {
+    width: 100%;
+    background-color: #ffffff;
+    border-bottom: 1px solid #ddd;
+}
+
+body.dark-theme .header {
+    background-color: #333;
+    border-color: #444;
+}
+
+.header-container {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 16px 20px;
+
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    align-items: center;
+}
+
+.logo {
+    justify-self: start;
+}
+
+.logo a {
+    text-decoration: none;
+    font-size: 24px;
+    font-weight: bold;
+    color: #0077ff;
+}
+
+body.dark-theme .logo a {
+    color: #66aaff;
+}
+
+.nav {
+    justify-self: center;
+}
+
+.nav-list {
+    display: flex;
+    list-style: none;
+    gap: 32px;
+    padding: 0;
+    margin: 0;
+}
+
+.nav-list a {
+    text-decoration: none;
+    color: #222;
+    font-weight: 500;
+}
+
+body.dark-theme .nav-list a {
+    color: #f5f5f5;
+}
+
+.header-actions {
+    justify-self: end;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.theme-toggle {
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    border: none;
+    background: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.theme-toggle img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    pointer-events: none;
+}
+
+body.dark-theme .theme-toggle {
+    border-color: #666;
+    color: #f5f5f5;
+}
+
+.cart,
+.account {
+    text-decoration: none;
+    color: #222;
+    font-weight: 500;
+}
+
+body.dark-theme .cart,
+body.dark-theme .account {
+    color: #f5f5f5;
+}
+
+.hamburger {
+    display: none;
+    font-size: 24px;
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+
+.mobile-nav {
+    display: none;
+    position: absolute;
+    top: 72px;
+    right: 20px;
+    background: #fff;
+    width: 220px;
+    border: 1px solid #ddd;
+}
+
+body.dark-theme .mobile-nav {
+    background: #333;
+    border-color: #444;
+}
+
+.mobile-nav.active {
+    display: block;
+}
+
+.mobile-nav ul {
+    list-style: none;
+    padding: 10px;
+    margin: 0;
+}
+
+.mobile-nav ul li {
+    margin: 10px 0;
+}
+
+.mobile-nav ul li a {
+    text-decoration: none;
+    color: #222;
+}
+
+body.dark-theme .mobile-nav ul li a {
+    color: #f5f5f5;
+}
+
+@media (max-width: 900px) {
+    .nav-list {
+        display: none;
+    }
+
+    .hamburger {
+        display: block;
+    }
+}
