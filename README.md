@@ -1,6 +1,6 @@
 <h1 align="center">Nexa</h1>
 
-Nexa is a backend for a PC hardware online store built with Django and PostgreSQL.
+<p align="center">Nexa is a backend for a PC hardware online store built with Django and PostgreSQL.</p>
 
 # Requirements
 * Python 3.14+
