@@ -1,0 +1,25 @@
+{% load static %}
+
+<link rel="stylesheet" href="{% static 'css/auth.css' %}">
+
+<div class="auth-page">
+    <form method="post" class="auth-container">
+        {% csrf_token %}
+
+        <h2>Вход</h2>
+
+        {% if error %}
+        <div class="form-error">{{ error }}</div>
+        {% endif %}
+
+        <input type="text" name="username" placeholder="Имя пользователя" required>
+        <input type="password" name="password" placeholder="Пароль" required>
+
+        <button type="submit" class="cta">Войти</button>
+
+        <div class="auth-footer">
+            Нет аккаунта?
+            <a href="{% url 'register' %}">Регистрация</a>
+        </div>
+    </form>
+</div>

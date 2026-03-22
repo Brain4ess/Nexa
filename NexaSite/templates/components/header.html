@@ -11,19 +11,18 @@
                     <a href="/" class="{% if request.path == '/' %}active{% endif %}">Главная</a>
                 </li>
                 <li>
-                    <a href="/categories/"
+                    <a href="/categories"
                         class="{% if request.path|slice:':11' == '/categories' %}active{% endif %}">Категории</a>
                 </li>
                 <li>
-                    <a href="/catalog/"
+                    <a href="/catalog"
                         class="{% if request.path|slice:':8' == '/catalog' %}active{% endif %}">Каталог</a>
                 </li>
                 <li>
-                    <a href="/brands/" class="{% if request.path|slice:':7' == '/brands' %}active{% endif %}">Бренды</a>
+                    <a href="/brands" class="{% if request.path|slice:':7' == '/brands' %}active{% endif %}">Бренды</a>
                 </li>
                 <li>
-                    <a href="/about"
-                        class="{% if request.path|slice:':8' == '/about' %}active{% endif %}">О Нас</a>
+                    <a href="/about" class="{% if request.path|slice:':8' == '/about' %}active{% endif %}">О Нас</a>
                 </li>
             </ul>
         </nav>
@@ -34,7 +33,21 @@
             </button>
 
             <a href="/cart/" class="cart">Корзина</a>
-            <a href="/account/" class="account">Вход</a>
+
+            {% if user.is_authenticated %}
+            <div class="user-menu" id="userMenu">
+                <button class="user-trigger" id="userTrigger">
+                    {{ user.username }}
+                </button>
+
+                <div class="user-dropdown" id="userDropdown">
+                    <a href="/account/">Аккаунт</a>
+                    <a href="/logout/">Выход</a>
+                </div>
+            </div>
+            {% else %}
+            <a href="/login/" class="account">Вход</a>
+            {% endif %}
 
             <button class="hamburger" id="hamburger">&#9776;</button>
         </div>
@@ -48,7 +61,20 @@
             <li><a href="/brands/">Бренды</a></li>
             <li><a href="/about">О Нас</a></li>
             <li><a href="/cart/">Корзина</a></li>
-            <li><a href="/account/">Вход</a></li>
+            {% if user.is_authenticated %}
+            <div class="user-menu" id="userMenu">
+                <button class="user-trigger" id="userTrigger">
+                    {{ user.username }}
+                </button>
+
+                <div class="user-dropdown" id="userDropdown">
+                    <a href="/account/">Аккаунт</a>
+                    <a href="/logout/">Выход</a>
+                </div>
+            </div>
+            {% else %}
+            <a href="/login/" class="account">Вход</a>
+            {% endif %}
         </ul>
     </nav>
 </header>
@@ -80,3 +106,5 @@
         mobileNav.classList.toggle("active");
     });
 </script>
+
+<script src="{% static 'js/user-menu.js' %}" defer></script>
