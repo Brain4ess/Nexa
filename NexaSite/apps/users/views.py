@@ -17,7 +17,8 @@ def login_view(request):
             login(request, user)
             return redirect("/")
         else:
-            messages.error(request, "Invalid username or password")
+            messages.error(request, "Неверный логин или пароль")
+            return redirect("login")
 
     return render(request, "pages/login.html")
 
@@ -29,13 +30,34 @@ def register_view(request):
         password = request.POST.get("password")
         password2 = request.POST.get("password2")
 
-        if password != password2:
-            messages.error(request, "Passwords do not match")
-            return redirect("register")
+        context = {
+            "username": username,
+            "email": email
+        }
+
+        if not username or len(username) < 3:
+            context["error"] = "Имя пользователя должно быть не менее 3 символов"
+            return render(request, "pages/register.html", context)
+
+        if " " in username:
+            context["error"] = "Имя пользователя не должно содержать пробелы"
+            return render(request, "pages/register.html", context)
 
         if User.objects.filter(username=username).exists():
-            messages.error(request, "Username already exists")
-            return redirect("register")
+            context["error"] = "Имя пользователя уже занято"
+            return render(request, "pages/register.html", context)
+
+        if User.objects.filter(email=email).exists():
+            context["error"] = "Почта уже используется"
+            return render(request, "pages/register.html", context)
+
+        if password != password2:
+            context["error"] = "Пароли не совпадают"
+            return render(request, "pages/register.html", context)
+
+        if len(password) < 8:
+            context["error"] = "Пароль должен быть не менее 8 символов"
+            return render(request, "pages/register.html", context)
 
         user = User.objects.create_user(
             username=username,

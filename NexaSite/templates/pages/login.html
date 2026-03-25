@@ -14,12 +14,14 @@
 
         <h2>Вход</h2>
 
-        {% if error %}
-        <div class="form-error">{{ error }}</div>
-        {% endif %}
-
         <input type="text" name="username" placeholder="Имя пользователя" required>
         <input type="password" name="password" placeholder="Пароль" required>
+
+        {% if messages %}
+        {% for message in messages %}
+        <div class="form-error">{{ message }}</div>
+        {% endfor %}
+        {% endif %}
 
         <button type="submit" class="cta">Войти</button>
 
