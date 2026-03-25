@@ -1,7 +1,13 @@
+{% extends "base.html" %}
 {% load static %}
 
-<link rel="stylesheet" href="{% static 'css/auth.css' %}">
+{% block title %}Вход — Nexa{% endblock %}
 
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/auth.css' %}">
+{% endblock %}
+
+{% block content %}
 <div class="auth-page">
     <form method="post" class="auth-container">
         {% csrf_token %}
@@ -23,3 +29,4 @@
         </div>
     </form>
 </div>
+{% endblock %}
