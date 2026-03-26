@@ -90,3 +90,81 @@ main {
     margin: 0 auto;
     padding: 0 20px;
 }
+
+
+
+[class*="container"] {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0 24px;
+}
+
+
+img {
+    max-width: 100%;
+    height: auto;
+}
+
+
+@media (max-width: 480px) {
+
+    [class*="container"] {
+        padding: 0 14px;
+    }
+
+    h1 {
+        font-size: 26px;
+    }
+
+    h2 {
+        font-size: 22px;
+    }
+
+    [class*="grid"] {
+        grid-template-columns: 1fr !important;
+        gap: 14px;
+    }
+
+    button {
+        width: 100%;
+    }
+}
+
+@media (max-width: 900px) {
+
+    [class*="container"] {
+        padding: 0 20px;
+    }
+
+    [class*="grid"] {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 18px;
+    }
+}
+
+
+@media (max-width: 1200px) {
+
+    [class*="container"] {
+        padding: 0 24px;
+    }
+}
+
+@media (min-width: 2000px) {
+
+    [class*="container"] {
+        max-width: 1600px;
+    }
+
+    h1 {
+        font-size: 42px;
+    }
+
+    h2 {
+        font-size: 32px;
+    }
+
+    [class*="grid"] {
+        gap: 28px;
+    }
+}
