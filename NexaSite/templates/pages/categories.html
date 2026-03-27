@@ -13,10 +13,20 @@
     <section class="section">
         <h1 class="title">Категории</h1>
 
+        <div class="categories-search">
+            <div class="categories-search-box">
+                <img src="{% static 'images/search_icon.png' %}" class="search-icon" alt="search">
+                <input type="text" id="categorySearch" placeholder="Поиск категории..." autocomplete="off">
+            </div>
+
+            <div id="searchResults" class="search-results"></div>
+        </div>
+
         {% if categories %}
-        <div class="categories-grid">
+        <div class="categories-grid" id="categoriesGrid">
             {% for category in categories %}
-            <a href="/catalog/{{ category.slug }}/" class="category-card">
+            <a href="/catalog/{{ category.slug }}/" class="category-card"
+               data-name="{{ category.name|lower }}">
 
                 <p>{{ category.name }}</p>
 
@@ -34,4 +44,32 @@
     </section>
 
 </div>
+
+<script>
+const input = document.getElementById("categorySearch");
+const cards = document.querySelectorAll(".category-card");
+const resultsBox = document.getElementById("searchResults");
+const categoryNames = Array.from(cards).map(card => card.dataset.name);
+
+input.addEventListener("input", function() {
+    const value = input.value.toLowerCase().trim();
+    resultsBox.innerHTML = "";
+    if (value === "") return;
+    let found = 0;
+    categoryNames.forEach(name => {
+        if (name.includes(value)) {
+            const result = document.createElement("div");
+            result.classList.add("search-result-item");
+            result.textContent = name;
+            const card = Array.from(cards).find(c => c.dataset.name === name);
+            if (card) result.onclick = () => card.click();
+            resultsBox.appendChild(result);
+            found++;
+        }
+    });
+    if (found === 0) {
+        resultsBox.innerHTML = '<div class="search-result-item empty">Ничего не найдено</div>';
+    }
+});
+</script>
 {% endblock %}
