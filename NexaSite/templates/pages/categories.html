@@ -9,29 +9,72 @@
 
 {% block content %}
 <div class="container">
-
     <section class="section">
         <h1 class="title">Категории</h1>
+        <div class="categories-search">
 
+            <div class="categories-search-box">
+                <img src="{% static 'images/search_icon.png' %}" class="search-icon" alt="search">
+                <input type="text" id="categorySearch" placeholder="Поиск категории..." autocomplete="off">
+            </div>
+        </div>
         {% if categories %}
-        <div class="categories-grid">
+        <div class="categories-grid" id="categoriesGrid">
             {% for category in categories %}
-            <a href="/catalog/{{ category.slug }}/" class="category-card">
-
+            <a href="/catalog/{{ category.slug }}/" class="category-card"
+               data-name="{{ category.name|lower }}">
                 <p>{{ category.name }}</p>
-
+                
                 <img src="{% if category.image %}{{ category.image.url }}{% else %}{% static 'images/placeholder.png' %}{% endif %}"
-                    alt="{{ category.name }}" class="{% if not category.image %}placeholder{% endif %}"
-                    onerror="this.onerror=null; this.src='{% static 'images/placeholder.png' %}'; this.classList.add('placeholder');">
-
+                     alt="{{ category.name }}"
+                     class="{% if not category.image %}placeholder{% endif %}"
+                     onerror="this.onerror=null; this.src='{% static 'images/placeholder.png' %}'; this.classList.add('placeholder');">
             </a>
             {% endfor %}
         </div>
+        <p id="noResultsMessage" class="empty" style="display: none;">
+            По Вашему запросу ничего не найдено
+        </p>
         {% else %}
         <p class="empty">Нет доступных категорий.</p>
         {% endif %}
-
     </section>
 
 </div>
+
+<script>
+const input = document.getElementById("categorySearch");
+const cards = document.querySelectorAll(".category-card");
+const noResultsMessage = document.getElementById("noResultsMessage");
+
+function similarity(a, b) {
+    a = a.toLowerCase();
+    b = b.toLowerCase();
+    if (a.length === 0) return 1;
+    let matches = 0;
+    for (let i = 0; i < a.length; i++) {
+        if (b.includes(a[i])) matches++;
+    }
+    return matches / Math.max(a.length, b.length);
+}
+
+input.addEventListener("input", function() {
+    const value = input.value.toLowerCase().trim();
+    let found = 0;
+    cards.forEach(card => {
+        const name = card.dataset.name;
+        if (name.includes(value) || similarity(value, name) > 0.5) {
+            card.style.display = "";
+            found++;
+        } else {
+            card.style.display = "none";
+        }
+    });
+    if (found === 0 && value !== "") {
+        noResultsMessage.style.display = "block";
+    } else {
+        noResultsMessage.style.display = "none";
+    }
+});
+</script>
 {% endblock %}
