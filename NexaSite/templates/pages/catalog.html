@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load static %}
+{% load humanize %}
 
 {% block title %}Каталог — Nexa{% endblock %}
 
@@ -71,7 +72,7 @@
                     <div class="product-info">
                         <div class="product-top">
                             <h3 class="product-title">{{ product.name }}</h3>
-                            <div class="product-price">{{ product.price }} ₽</div>
+                            <div class="product-price">{{ product.price|floatformat:0|stringformat:"s"|intcomma }} ₽</div>
                         </div>
 
                         <div class="product-bottom">

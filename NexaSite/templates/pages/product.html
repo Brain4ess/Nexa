@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load static %}
+{% load humanize %}
 
 {% block title %}{{ product.name }} — Nexa{% endblock %}
 
@@ -9,88 +10,120 @@
 
 {% block content %}
 <div class="container">
+
+    <h1 class="title">{{ product.name }}</h1>
+
     <section class="product">
-        <div class="product-gallery">
-            {% if product.images.all %}
-                {% with main_image=product.images.all|first %}
-                <div class="main-image">
-                    <img
-                        id="productMainImage"
-                        src="{% if main_image %}{{ main_image.image.url }}{% else %}{% static 'images/placeholder.png' %}{% endif %}"
-                        alt="{{ product.name }}"
-                        {% if not main_image %}class="placeholder"{% endif %}
-                        onerror="this.onerror=null; this.src='{% static 'images/placeholder.png' %}'; this.classList.add('placeholder');"
-                    >
-                </div>
 
-                <div class="thumbnails">
-                    {% for image in product.images.all %}
-                    <button
-                        type="button"
-                        class="thumbnail{% if forloop.first %} active{% endif %}"
-                        data-full-src="{{ image.image.url }}"
-                        data-full-alt="{{ product.name }}"
-                    >
-                        <img
-                            src="{{ image.image.url }}"
-                            alt="{{ product.name }}"
-                            loading="lazy"
-                            onerror="this.onerror=null; this.closest('.thumbnail').dataset.fullSrc='{% static 'images/placeholder.png' %}'; this.src='{% static 'images/placeholder.png' %}'; this.classList.add('placeholder');"
-                        >
-                    </button>
-                    {% endfor %}
-                </div>
-                {% endwith %}
-            {% else %}
-                <div class="main-image">
-                    <img
-                        id="productMainImage"
-                        src="{% static 'images/placeholder.png' %}"
-                        alt="{{ product.name }}"
-                        class="placeholder"
-                    >
-                </div>
+        <div class="product-layout">
 
-                <div class="thumbnails">
-                    <button type="button" class="thumbnail active" data-full-src="{% static 'images/placeholder.png' %}" data-full-alt="{{ product.name }}">
-                        <img src="{% static 'images/placeholder.png' %}" alt="{{ product.name }}" class="placeholder">
-                    </button>
-                </div>
-            {% endif %}
-        </div>
+            <!-- ===== PRODUCT GALLERY ===== -->
+            <div class="product-gallery">
 
-        <div class="product-info">
-            <a href="/catalog/{{ product.category.slug }}/" class="product-category">{{ product.category.name }}</a>
+                {% if product.images.all %}
+                    {% with main_image=product.images.all|first %}
 
-            <h1 class="product-title">{{ product.name }}</h1>
+                    <div class="gallery-wrapper">
 
-            <div class="product-rating">
-                {% if product.average_rating %}
-                    {{ product.average_rating }} ★ ({{ product.reviews_count|default:"0" }})
+                        <div class="thumbnails">
+                            {% for image in product.images.all %}
+                            <button
+                                type="button"
+                                class="thumbnail{% if forloop.first %} active{% endif %}"
+                                data-full-src="{{ image.image.url }}"
+                            >
+                                <img
+                                    src="{{ image.image.url }}"
+                                    alt="{{ product.name }}"
+                                    loading="lazy"
+                                    onerror="this.onerror=null; this.closest('.thumbnail').dataset.fullSrc='{% static 'images/placeholder.png' %}'; this.src='{% static 'images/placeholder.png' %}'; this.classList.add('placeholder');"
+                                >
+                            </button>
+                            {% endfor %}
+                        </div>
+
+                        <div class="main-image">
+                            <img
+                                id="productMainImage"
+                                src="{% if main_image %}{{ main_image.image.url }}{% else %}{% static 'images/placeholder.png' %}{% endif %}"
+                                alt="{{ product.name }}"
+                                {% if not main_image %}class="placeholder"{% endif %}
+                            >
+                        </div>
+
+                    </div>
+
+                    {% endwith %}
                 {% else %}
-                    0 ★ (0)
+
+                    <div class="gallery-wrapper">
+
+                        <div class="thumbnails">
+                            <button type="button" class="thumbnail active" data-full-src="{% static 'images/placeholder.png' %}">
+                                <img src="{% static 'images/placeholder.png' %}" class="placeholder">
+                            </button>
+                        </div>
+
+                        <div class="main-image">
+                            <img id="productMainImage" src="{% static 'images/placeholder.png' %}" class="placeholder">
+                        </div>
+
+                    </div>
+
                 {% endif %}
+
             </div>
 
-            <div class="product-price">{{ product.price }} ₽</div>
+            <!-- ===== PRODUCT INFO ===== -->
+            <div class="product-info">
 
-            <div class="product-stock {% if product.stock > 0 %}in-stock{% else %}out-stock{% endif %}">
-                {% if product.stock > 0 %}
-                    В наличии
-                {% else %}
-                    Нет в наличии
-                {% endif %}
+                <div class="product-top">
+                    <a href="/catalog/{{ product.category.slug }}/" class="product-category">
+                        {{ product.category.name }}
+                    </a>
+
+                    <div class="product-stock {% if product.stock > 0 %}in-stock{% else %}out-stock{% endif %}">
+                        {% if product.stock > 0 %}
+                            В наличии
+                        {% else %}
+                            Нет в наличии
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- ===== BUY BLOCK ===== -->
+                <div class="product-buy">
+
+                    <div class="buy-left">
+                        <div class="product-price">
+                            {{ product.price|floatformat:0|stringformat:"s"|intcomma }} ₽
+                        </div>
+
+                        <div class="product-rating">
+                            {% if product.average_rating %}
+                                {{ product.average_rating }} ★ ({{ product.reviews_count|default:"0" }})
+                            {% else %}
+                                0 ★ (0)
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <button type="button" class="add-to-cart" {% if product.stock == 0 %}disabled{% endif %}>
+                        <img src="{% static 'images/cart_icon.png' %}" alt="">
+                    </button>
+
+                </div>
+
             </div>
 
-            <button type="button" class="add-to-cart" {% if product.stock == 0 %}disabled{% endif %} aria-label="Добавить в корзину">
-                <img src="{% static 'images/cart_icon.png' %}" alt="">
-            </button>
         </div>
 
+        <!-- ===== DESCRIPTION ===== -->
         <div class="product-description">
             <h2>Описание</h2>
             <p>{{ product.description|default:"Описание отсутствует" }}</p>
         </div>
+
     </section>
 </div>
 
