@@ -11,22 +11,17 @@
                     <a href="/" class="{% if request.path == '/' %}active{% endif %}">Главная</a>
                 </li>
                 <li>
-                    <a href="/catalog/"
-                        class="{% if request.path|slice:':9' == '/catalog/' or request.path|slice:':8' == '/catalog' %}active{% endif %}">
-                        Каталог
-                    </a>
+                    <a href="/catalog"
+                        class="{% if request.path|slice:':8' == '/catalog' %}active{% endif %}">Каталог</a>
                 </li>
                 <li>
-                    <a href="/about/"
-                        class="{% if request.path|slice:':7' == '/about/' or request.path|slice:':6' == '/about' %}active{% endif %}">
-                        О Нас
-                    </a>
+                    <a href="/about" class="{% if request.path|slice:':8' == '/about' %}active{% endif %}">О Нас</a>
                 </li>
             </ul>
         </nav>
 
         <div class="header-actions">
-            <button class="theme-toggle" id="themeToggle" type="button">
+            <button class="theme-toggle" id="themeToggle">
                 <img id="themeIcon" src="{% static 'images/white_theme_icon.png' %}" alt="theme">
             </button>
 
@@ -34,7 +29,7 @@
 
             {% if user.is_authenticated %}
             <div class="user-menu" id="userMenu">
-                <button class="user-trigger" id="userTrigger" type="button">
+                <button class="user-trigger" id="userTrigger">
                     {{ user.username }}
                 </button>
 
@@ -47,38 +42,29 @@
             <a href="/login/" class="account">Вход</a>
             {% endif %}
 
-            <button class="hamburger" id="hamburger" type="button">&#9776;</button>
+            <button class="hamburger" id="hamburger">&#9776;</button>
         </div>
     </div>
 
     <nav class="mobile-nav" id="mobileNav">
         <ul>
             <li><a href="/" class="{% if request.path == '/' %}active{% endif %}">Главная</a></li>
-            <li>
-                <a href="/catalog/"
-                    class="{% if request.path|slice:':9' == '/catalog/' or request.path|slice:':8' == '/catalog' %}active{% endif %}">
-                    Каталог
-                </a>
-            </li>
-            <li>
-                <a href="/about/"
-                    class="{% if request.path|slice:':7' == '/about/' or request.path|slice:':6' == '/about' %}active{% endif %}">
-                    О Нас
-                </a>
-            </li>
+            <li><a href="/catalog/">Каталог</a></li>
+            <li><a href="/about">О Нас</a></li>
             <li><a href="/cart/">Корзина</a></li>
-
             {% if user.is_authenticated %}
-            <li>
-                <a href="/account/">Аккаунт</a>
-            </li>
-            <li>
-                <a href="/logout/">Выход</a>
-            </li>
+            <div class="user-menu" id="userMenu">
+                <button class="user-trigger" id="userTrigger">
+                    {{ user.username }}
+                </button>
+
+                <div class="user-dropdown" id="userDropdown">
+                    <a href="/account/">Аккаунт</a>
+                    <a href="/logout/">Выход</a>
+                </div>
+            </div>
             {% else %}
-            <li>
-                <a href="/login/" class="account">Вход</a>
-            </li>
+            <a href="/login/" class="account">Вход</a>
             {% endif %}
         </ul>
     </nav>
