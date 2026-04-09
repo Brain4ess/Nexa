@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Product, ProductImage, Attribute, ProductAttribute, CategoryAttribute
+from .models import Product, ProductImage, Attribute, ProductAttribute, AttributeGroup
 
 class ProductImageInline(admin.TabularInline):
     model = ProductImage
@@ -7,7 +7,7 @@ class ProductImageInline(admin.TabularInline):
 
 class ProductAttributeInline(admin.TabularInline):
     model = ProductAttribute
-    extra = 1
+    extra = 0
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
@@ -17,10 +17,27 @@ class ProductAdmin(admin.ModelAdmin):
     search_fields = ("name",)
     inlines = [ProductImageInline, ProductAttributeInline]
 
-@admin.register(Attribute)
-class AttributeAdmin(admin.ModelAdmin):
+class AttributeInline(admin.TabularInline):
+    model = Attribute
+    extra = 1
+
+@admin.register(AttributeGroup)
+class AttributeGroupAdmin(admin.ModelAdmin):
+    list_display = ("id", "name", "category", "order")
+    list_filter = ("category",)
+    search_fields = ("name",)
+    inlines = [AttributeInline]
     prepopulated_fields = {"slug": ("name",)}
 
-@admin.register(CategoryAttribute)
-class CategoryAttributeAdmin(admin.ModelAdmin):
-    list_display = ("category", "attribute")
+@admin.register(Attribute)
+class AttributeAdmin(admin.ModelAdmin):
+    list_display = ("id", "name", "group", "order")
+    list_filter = ("group",)
+    search_fields = ("name",)
+    prepopulated_fields = {"slug": ("name",)}
+
+@admin.register(ProductAttribute)
+class ProductAttributeAdmin(admin.ModelAdmin):
+    list_display = ("product", "attribute", "value")
+    list_filter = ("attribute__group",)
+    search_fields = ("product__name", "attribute__name")

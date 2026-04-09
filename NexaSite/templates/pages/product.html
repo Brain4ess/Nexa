@@ -10,21 +10,16 @@
 
 {% block content %}
 <div class="container">
-
     <h1 class="title">{{ product.name }}</h1>
 
     <section class="product">
-
         <div class="product-layout">
 
             <!-- ===== PRODUCT GALLERY ===== -->
             <div class="product-gallery">
-
                 {% if product.images.all %}
                     {% with main_image=product.images.all|first %}
-
                     <div class="gallery-wrapper">
-
                         <div class="thumbnails">
                             {% for image in product.images.all %}
                             <button
@@ -50,33 +45,25 @@
                                 {% if not main_image %}class="placeholder"{% endif %}
                             >
                         </div>
-
                     </div>
-
                     {% endwith %}
                 {% else %}
-
                     <div class="gallery-wrapper">
-
                         <div class="thumbnails">
                             <button type="button" class="thumbnail active" data-full-src="{% static 'images/placeholder.png' %}">
-                                <img src="{% static 'images/placeholder.png' %}" class="placeholder">
+                                <img src="{% static 'images/placeholder.png' %}" alt="{{ product.name }}" class="placeholder">
                             </button>
                         </div>
 
                         <div class="main-image">
-                            <img id="productMainImage" src="{% static 'images/placeholder.png' %}" class="placeholder">
+                            <img id="productMainImage" src="{% static 'images/placeholder.png' %}" alt="{{ product.name }}" class="placeholder">
                         </div>
-
                     </div>
-
                 {% endif %}
-
             </div>
 
             <!-- ===== PRODUCT INFO ===== -->
             <div class="product-info">
-
                 <div class="product-top">
                     <a href="/catalog/{{ product.category.slug }}/" class="product-category">
                         {{ product.category.name }}
@@ -93,7 +80,6 @@
 
                 <!-- ===== BUY BLOCK ===== -->
                 <div class="product-buy">
-
                     <div class="buy-left">
                         <div class="product-price">
                             {{ product.price|floatformat:0|stringformat:"s"|intcomma }} ₽
@@ -101,7 +87,7 @@
 
                         <div class="product-rating">
                             {% if product.average_rating %}
-                                {{ product.average_rating }} ★ ({{ product.reviews_count|default:"0" }})
+                                {{ product.average_rating|floatformat:1 }} ★ ({{ product.reviews_count }})
                             {% else %}
                                 0 ★ (0)
                             {% endif %}
@@ -109,21 +95,48 @@
                     </div>
 
                     <button type="button" class="add-to-cart" {% if product.stock == 0 %}disabled{% endif %}>
-                        <img src="{% static 'images/cart_icon.png' %}" alt="">
+                        <img src="{% static 'images/cart_icon.png' %}" alt="В корзину">
                     </button>
-
                 </div>
-
             </div>
-
         </div>
 
         <!-- ===== DESCRIPTION ===== -->
-        <div class="product-description">
-            <h2>Описание</h2>
-            <p>{{ product.description|default:"Описание отсутствует" }}</p>
-        </div>
+        <div class="product-bottom">
+            <div class="product-description">
+                <h2>Описание</h2>
+                <p>{{ product.description|default:"Описание отсутствует"|linebreaksbr }}</p>
+            </div>
 
+            <div class="product-specs">
+                <h2>Характеристики</h2>
+
+                {% with product_attrs=product.attributes.all category_groups=product.category.attribute_groups.all %}
+                    {% if category_groups %}
+                        {% for group in category_groups %}
+                            <div class="spec-group">
+                                <h3 class="spec-group-title">{{ group.name }}</h3>
+
+                                <div class="spec-list">
+                                    {% for attribute in group.attributes.all %}
+                                        {% for product_attr in product_attrs %}
+                                            {% if product_attr.attribute_id == attribute.id %}
+                                                <div class="spec-row">
+                                                    <span class="spec-name">{{ attribute.name }}</span>
+                                                    <span class="spec-value">{{ product_attr.value|default:"—" }}</span>
+                                                </div>
+                                            {% endif %}
+                                        {% endfor %}
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <p class="empty">Характеристики отсутствуют.</p>
+                    {% endif %}
+                {% endwith %}
+            </div>
+        </div>
     </section>
 </div>
 
