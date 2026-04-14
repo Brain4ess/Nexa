@@ -1,0 +1,142 @@
+{% extends "base.html" %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}Корзина — Nexa{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/cart.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <section class="cart-page">
+        <h1 class="title">Корзина</h1>
+
+        {% if messages %}
+            <div class="cart-messages">
+                {% for message in messages %}
+                    <div class="cart-message">{{ message }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        {% if items %}
+            <div class="cart-layout">
+                <div class="cart-items-panel">
+                    <div class="cart-items-header">
+                        <div>Товары в корзине</div>
+                        <div>{{ cart.items_count }} шт.</div>
+                    </div>
+
+                    <div class="cart-items">
+                        {% for item in items %}
+                            {% with main_image=item.product.images.all|first %}
+                            <article class="cart-item">
+                                <a class="cart-item-image" href="/product/{{ item.product.slug }}/">
+                                    <img
+                                        src="{% if main_image %}{{ main_image.image.url }}{% else %}{% static 'images/placeholder.png' %}{% endif %}"
+                                        alt="{{ item.product.name }}"
+                                        {% if not main_image %}class="placeholder"{% endif %}
+                                    >
+                                </a>
+
+                                <div class="cart-item-info">
+                                    <a class="cart-item-title" href="/product/{{ item.product.slug }}/">
+                                        {{ item.product.name }}
+                                    </a>
+
+                                    <div class="cart-item-meta">
+                                        <span class="cart-item-price">
+                                            {{ item.product.price|floatformat:0|stringformat:"s"|intcomma }} ₽
+                                        </span>
+                                        <span class="cart-item-stock">
+                                            {% if item.product.stock > 0 %}
+                                                В наличии
+                                            {% else %}
+                                                Нет в наличии
+                                            {% endif %}
+                                        </span>
+                                    </div>
+
+                                    <div class="cart-item-actions">
+                                        <form class="cart-quantity-form" action="{% url 'cart_update' %}" method="post">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="product_id" value="{{ item.product.id }}">
+
+                                            <button type="submit" name="quantity" value="{{ item.quantity|add:'-1' }}" class="qty-btn">
+                                                -
+                                            </button>
+
+                                            <input type="number" name="quantity" value="{{ item.quantity }}" min="1" max="{{ item.product.stock }}">
+
+                                            <button type="submit" name="quantity" value="{{ item.quantity|add:'1' }}" class="qty-btn">
+                                                +
+                                            </button>
+                                        </form>
+
+                                        <form action="{% url 'cart_remove' %}" method="post">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="product_id" value="{{ item.product.id }}">
+                                            <button type="submit" class="remove-btn">Удалить</button>
+                                        </form>
+                                    </div>
+                                </div>
+
+                                <div class="cart-item-total">
+                                    {{ item.total_price|floatformat:0|stringformat:"s"|intcomma }} ₽
+                                </div>
+                            </article>
+                            {% endwith %}
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <aside class="cart-summary">
+                    <div class="summary-card">
+                        <h2>Ваш заказ</h2>
+
+                        <div class="summary-row">
+                            <span>Товаров</span>
+                            <span>{{ cart.items_count }}</span>
+                        </div>
+
+                        <div class="summary-row">
+                            <span>Сумма</span>
+                            <span>{{ cart.total_price|floatformat:0|stringformat:"s"|intcomma }} ₽</span>
+                        </div>
+
+                        <div class="summary-divider"></div>
+
+                        <div class="payment-block">
+                            <div class="payment-title">Способ оплаты</div>
+
+                            <label class="payment-option">
+                                <input type="radio" name="payment_method" checked>
+                                <span>Карта (Visa/Mastercard)</span>
+                            </label>
+
+                            <label class="payment-option">
+                                <input type="radio" name="payment_method">
+                                <span>Карта (Мир)</span>
+                            </label>
+
+                            <label class="payment-option">
+                                <input type="radio" name="payment_method">
+                                <span>СБП</span>
+                            </label>
+                        </div>
+
+                        <a href="#" class="checkout-btn">Перейти к оформлению</a>
+                    </div>
+                </aside>
+            </div>
+        {% else %}
+            <div class="cart-empty">
+                <p>Ваша корзина пуста.</p>
+                <a href="/catalog/" class="empty-link">Перейти в каталог</a>
+            </div>
+        {% endif %}
+    </section>
+</div>
+{% endblock %}

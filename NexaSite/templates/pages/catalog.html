@@ -81,7 +81,12 @@
                     </div>
                 </a>
 
-                <button class="add-to-cart" data-product="{{ product.id }}" {% if product.stock == 0 %}disabled{% endif %}></button>
+                <form action="{% url 'cart_add' %}" method="post" class="add-to-cart-form">
+                    {% csrf_token %}
+                    <input type="hidden" name="product_id" value="{{ product.id }}">
+                    <input type="hidden" name="quantity" value="1">
+                    <button type="submit" class="add-to-cart" data-product="{{ product.id }}" {% if product.stock == 0 %}disabled{% endif %}></button>
+                </form>
             </div>
             {% endfor %}
 

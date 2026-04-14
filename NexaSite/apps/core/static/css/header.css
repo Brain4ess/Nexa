@@ -260,6 +260,58 @@
     background: var(--header-link-active-bg);
 }
 
+.cart,
+.cart-mobile {
+    position: relative;
+    text-decoration: none;
+    color: var(--header-link);
+    font-weight: 500;
+    font-size: 15px;
+    line-height: 1;
+    white-space: nowrap;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 8px 10px;
+    border-radius: 8px;
+    transition: background-color 0.2s ease, color 0.2s ease;
+
+    flex: 0 0 auto;
+}
+
+.cart:hover,
+.cart-mobile:hover,
+.account:hover {
+    background: var(--header-link-active-bg);
+}
+
+.cart-badge {
+    position: absolute;
+    top: -6px;
+    right: -7px;
+
+    min-width: 18px;
+    height: 18px;
+    padding: 0 5px;
+
+    border-radius: 999px;
+    background: var(--accent);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 18px;
+    text-align: center;
+
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+    pointer-events: none;
+}
+
+.cart-mobile {
+    width: fit-content;
+}
+
 @media (max-width: 900px) {
     .nav {
         display: none;

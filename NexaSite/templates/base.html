@@ -10,20 +10,29 @@
     <link rel="stylesheet" href="{% static 'css/header.css' %}">
     <link rel="stylesheet" href="{% static 'css/footer.css' %}">
     <link rel="stylesheet" href="{% static 'css/base.css' %}">
-
+    
     {% block extra_css %}{% endblock %}
-
+    
     <script src="{% static 'js/theme.js' %}" defer></script>
 </head>
 
 <body>
     {% include "components/header.html" %}
-
+    
     <main class="main">
         {% block content %}{% endblock %}
     </main>
-
+    
     {% include "components/footer.html" %}
+
+    <div id="cart-popup" class="cart-popup">
+        <div class="cart-popup-content">
+            <span class="cart-popup-text">Товар добавлен в корзину</span>
+            <a href="/cart/" class="cart-popup-link">Перейти</a>
+        </div>
+    </div>
+
+    <script src="{% static 'js/cart.js' %}" defer></script>
 </body>
 
 </html>

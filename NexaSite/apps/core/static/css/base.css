@@ -90,3 +90,50 @@ main {
     margin: 0 auto;
     padding: 0 20px;
 }
+
+.cart-popup {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 999;
+
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+
+    padding: 14px 16px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+
+    opacity: 0;
+    transform: translateY(20px);
+    pointer-events: none;
+
+    transition: all 0.25s ease;
+}
+
+.cart-popup.show {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+}
+
+.cart-popup-content {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.cart-popup-text {
+    font-size: 14px;
+}
+
+.cart-popup-link {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--accent);
+    text-decoration: none;
+}
+
+.cart-popup-link:hover {
+    text-decoration: underline;
+}

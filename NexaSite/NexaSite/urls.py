@@ -26,7 +26,7 @@ urlpatterns = [
     path('', index, name='index'),
     path("catalog/", include("apps.catalog.urls")),
 
-    path('cart', index, name='cart'),
+    path("cart/", include("apps.cart.urls")),
     path('account', index, name='account'),
     path('about', about, name='about'),
 ]
