@@ -65,18 +65,6 @@
     border-radius: var(--radius);
     background: var(--card-bg);
     border: 1px solid var(--card-border);
-    transition:
-        transform .2s ease,
-        background-color .35s ease,
-        border-color .35s ease,
-        box-shadow .35s ease;
-}
-
-.cart-item:hover {
-    transform: translateY(-3px);
-    background: var(--card-hover-bg);
-    border-color: rgba(37, 99, 235, 0.5);
-    box-shadow: 0 12px 25px rgba(0, 0, 0, 0.15);
 }
 
 .cart-item-image {
@@ -152,6 +140,7 @@ html[data-theme="dark"] .cart-item-image img.placeholder {
 .cart-quantity-form {
     display: flex;
     align-items: center;
+    justify-content: center;
     gap: 8px;
     padding: 8px;
     border-radius: 12px;
@@ -163,12 +152,21 @@ html[data-theme="dark"] .cart-item-image img.placeholder {
     width: 64px;
     height: 36px;
     text-align: center;
+    line-height: 36px;
     border-radius: 10px;
     border: 1px solid var(--card-border);
     background: transparent;
     color: var(--text);
     outline: none;
     font-size: 14px;
+    appearance: textfield;
+    -moz-appearance: textfield;
+}
+
+.cart-quantity-form input[type="number"]::-webkit-outer-spin-button,
+.cart-quantity-form input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
 }
 
 .qty-btn {
