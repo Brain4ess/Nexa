@@ -26,13 +26,13 @@
                 <div class="cart-items-panel">
                     <div class="cart-items-header">
                         <div>Товары в корзине</div>
-                        <div>{{ cart.items_count }} шт.</div>
+                        <div data-cart-items-count>{{ cart.items_count }} шт.</div>
                     </div>
 
                     <div class="cart-items">
                         {% for item in items %}
                             {% with main_image=item.product.images.all|first %}
-                            <article class="cart-item">
+                            <article class="cart-item" data-unit-price="{{ item.product.price|floatformat:2 }}">
                                 <a class="cart-item-image" href="/product/{{ item.product.slug }}/">
                                     <img
                                         src="{% if main_image %}{{ main_image.image.url }}{% else %}{% static 'images/placeholder.png' %}{% endif %}"
@@ -48,11 +48,11 @@
 
                                     <div class="cart-item-meta">
                                         <span class="cart-item-price">
-                                            {{ item.product.price|floatformat:0|stringformat:"s"|intcomma }} ₽
+                                            Цена: {{ item.product.price|floatformat:0|stringformat:"s"|intcomma }} ₽
                                         </span>
                                         <span class="cart-item-stock">
                                             {% if item.product.stock > 0 %}
-                                                В наличии
+                                                В наличии: {{ item.product.stock }}
                                             {% else %}
                                                 Нет в наличии
                                             {% endif %}
@@ -64,13 +64,13 @@
                                             {% csrf_token %}
                                             <input type="hidden" name="product_id" value="{{ item.product.id }}">
 
-                                            <button type="submit" name="quantity" value="{{ item.quantity|add:'-1' }}" class="qty-btn">
+                                            <button type="button" class="qty-btn" data-delta="-1">
                                                 -
                                             </button>
 
                                             <input type="number" name="quantity" value="{{ item.quantity }}" min="1" max="{{ item.product.stock }}">
 
-                                            <button type="submit" name="quantity" value="{{ item.quantity|add:'1' }}" class="qty-btn">
+                                            <button type="button" class="qty-btn" data-delta="1">
                                                 +
                                             </button>
                                         </form>
@@ -83,7 +83,7 @@
                                     </div>
                                 </div>
 
-                                <div class="cart-item-total">
+                                <div class="cart-item-total" data-cart-item-total>
                                     {{ item.total_price|floatformat:0|stringformat:"s"|intcomma }} ₽
                                 </div>
                             </article>
@@ -98,12 +98,12 @@
 
                         <div class="summary-row">
                             <span>Товаров</span>
-                            <span>{{ cart.items_count }}</span>
+                            <span data-cart-items-count>{{ cart.items_count }} шт.</span>
                         </div>
 
                         <div class="summary-row">
                             <span>Сумма</span>
-                            <span>{{ cart.total_price|floatformat:0|stringformat:"s"|intcomma }} ₽</span>
+                            <span data-cart-total>{{ cart.total_price|floatformat:0|stringformat:"s"|intcomma }} ₽</span>
                         </div>
 
                         <div class="summary-divider"></div>
