@@ -75,7 +75,7 @@
                                             </button>
                                         </form>
 
-                                        <form action="{% url 'cart_remove' %}" method="post">
+                                        <form action="{% url 'cart_remove' %}" method="post" class="cart-remove-form">
                                             {% csrf_token %}
                                             <input type="hidden" name="product_id" value="{{ item.product.id }}">
                                             <button type="submit" class="remove-btn">Удалить</button>

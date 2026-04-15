@@ -146,7 +146,7 @@ document.addEventListener("DOMContentLoaded", () => {
         modalConfirm.addEventListener("click", async () => {
             if (!pendingRemoveRow) return;
 
-            const removeForm = pendingRemoveRow.querySelector('form[action*="cart_remove"]');
+            const removeForm = pendingRemoveRow.querySelector(".cart-remove-form");
             if (!removeForm) {
                 closeDeleteModal();
                 return;
@@ -327,7 +327,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 
-    document.querySelectorAll('form[action*="cart_remove"]').forEach((form) => {
+    document.querySelectorAll(".cart-remove-form").forEach((form) => {
         form.addEventListener("submit", async (e) => {
             e.preventDefault();
 
