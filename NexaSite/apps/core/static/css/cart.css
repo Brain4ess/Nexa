@@ -329,6 +329,84 @@ html[data-theme="dark"] .cart-item-image img.placeholder {
     text-decoration: underline;
 }
 
+.cart-lock {
+    overflow: hidden;
+}
+
+.cart-delete-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+}
+
+.cart-delete-modal.is-open {
+    display: flex;
+}
+
+.cart-delete-modal__backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.35);
+    backdrop-filter: blur(6px);
+}
+
+.cart-delete-modal__dialog {
+    position: relative;
+    z-index: 1;
+    width: min(92vw, 420px);
+    padding: 22px;
+    border-radius: var(--radius);
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    box-shadow: var(--card-shadow);
+}
+
+.cart-delete-modal__dialog h3 {
+    margin: 0 0 10px;
+    font-size: 18px;
+    color: var(--text);
+}
+
+.cart-delete-modal__dialog p {
+    margin: 0 0 18px;
+    color: var(--muted);
+    line-height: 1.5;
+}
+
+.cart-delete-modal__actions {
+    display: flex;
+    gap: 10px;
+}
+
+.cart-delete-modal__remove,
+.cart-delete-modal__cancel {
+    flex: 1;
+    height: 44px;
+    border: none;
+    border-radius: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform .15s ease, opacity .2s ease;
+}
+
+.cart-delete-modal__remove:hover,
+.cart-delete-modal__cancel:hover {
+    transform: translateY(-1px);
+}
+
+.cart-delete-modal__remove {
+    background: #de1e1eb1;
+    color: #fff;
+}
+
+.cart-delete-modal__cancel {
+    background: var(--card-hover-bg);
+    color: var(--text);
+}
+
 @media (max-width: 1100px) {
     .cart-layout {
         grid-template-columns: 1fr 300px;

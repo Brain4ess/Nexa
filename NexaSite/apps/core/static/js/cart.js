@@ -13,7 +13,7 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     const formatPrice = (value) => {
-        const number = Number(value) || 0;
+        const number = Number(String(value).replace(",", ".")) || 0;
         return `${number.toLocaleString("ru-RU", {
             minimumFractionDigits: 0,
             maximumFractionDigits: 2
@@ -47,9 +47,8 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!row) return;
 
         let unitPrice = row.dataset.unitPrice || "0";
-        unitPrice = parseFloat(unitPrice.replace(",", "."));
-
-        if (isNaN(unitPrice)) unitPrice = 0;
+        unitPrice = parseFloat(String(unitPrice).replace(",", "."));
+        if (Number.isNaN(unitPrice)) unitPrice = 0;
 
         const total = unitPrice * Number(quantity || 0);
 
@@ -57,6 +56,18 @@ document.addEventListener("DOMContentLoaded", () => {
         if (totalEl) {
             totalEl.textContent = formatPrice(total);
         }
+    };
+
+    const showCartPopup = () => {
+        const popup = document.getElementById("cart-popup");
+        if (!popup) return;
+
+        popup.classList.add("show");
+        clearTimeout(popup.hideTimeout);
+
+        popup.hideTimeout = setTimeout(() => {
+            popup.classList.remove("show");
+        }, 2500);
     };
 
     const sendCartRequest = async (url, formData) => {
@@ -83,6 +94,92 @@ document.addEventListener("DOMContentLoaded", () => {
             updateCartTotal(data.total_price);
         }
     };
+
+    const renderEmptyCart = () => {
+        const page = document.querySelector(".cart-page");
+        if (!page) return;
+
+        page.innerHTML = `
+            <h1 class="title">Корзина</h1>
+            <div class="cart-empty">
+                <p>Ваша корзина пуста.</p>
+                <a href="/catalog/" class="empty-link">Перейти в каталог</a>
+            </div>
+        `;
+    };
+
+    const modal = document.getElementById("cartDeleteModal");
+    const modalConfirm = document.getElementById("cartDeleteConfirm");
+    const modalCancel = document.getElementById("cartDeleteCancel");
+
+    let pendingRemoveRow = null;
+
+    const openDeleteModal = (row) => {
+        pendingRemoveRow = row;
+        if (!modal) return;
+
+        modal.classList.add("is-open");
+        document.body.classList.add("cart-lock");
+    };
+
+    const closeDeleteModal = () => {
+        if (!modal) return;
+
+        modal.classList.remove("is-open");
+        document.body.classList.remove("cart-lock");
+        pendingRemoveRow = null;
+    };
+
+    if (modal) {
+        modal.addEventListener("click", (e) => {
+            if (e.target.matches("[data-cart-delete-close]")) {
+                closeDeleteModal();
+            }
+        });
+    }
+
+    if (modalCancel) {
+        modalCancel.addEventListener("click", closeDeleteModal);
+    }
+
+    if (modalConfirm) {
+        modalConfirm.addEventListener("click", async () => {
+            if (!pendingRemoveRow) return;
+
+            const removeForm = pendingRemoveRow.querySelector('form[action*="cart_remove"]');
+            if (!removeForm) {
+                closeDeleteModal();
+                return;
+            }
+
+            try {
+                const formData = new FormData(removeForm);
+                const { data } = await sendCartRequest(removeForm.action, formData);
+
+                if (!data.ok) {
+                    alert(data.error || "Ошибка");
+                    return;
+                }
+
+                pendingRemoveRow.remove();
+                refreshCartUI(data);
+                closeDeleteModal();
+
+                if (Number(data.items_count) === 0) {
+                    renderEmptyCart();
+                }
+            } catch (error) {
+                console.error("Cart remove error:", error);
+                closeDeleteModal();
+            }
+        });
+    }
+
+    document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") {
+            closeDeleteModal();
+        }
+    });
 
     document.querySelectorAll(".add-to-cart-form").forEach((form) => {
         form.addEventListener("submit", async (e) => {
@@ -122,46 +219,94 @@ document.addEventListener("DOMContentLoaded", () => {
         const productInput = form.querySelector('input[name="product_id"]');
         const row = form.closest(".cart-item");
 
+        if (!qtyInput || !productInput || !row) return;
+
+        let typingTimer = null;
+
+        const clampQuantity = (value) => {
+            let num = Number(value);
+
+            if (!Number.isFinite(num) || num < 1) {
+                num = 1;
+            }
+
+            const max = Number(qtyInput.max || 0);
+            if (max > 0) {
+                num = Math.min(num, max);
+            }
+
+            return num;
+        };
+
+        const syncQuantity = async (quantity) => {
+            const formData = new FormData();
+            formData.append("product_id", productInput.value);
+            formData.append("quantity", String(quantity));
+
+            const { data } = await sendCartRequest(form.action, formData);
+
+            if (!data.ok) {
+                alert(data.error || "Ошибка");
+                return false;
+            }
+
+            qtyInput.value = quantity;
+            updateItemTotal(row, quantity);
+            refreshCartUI(data);
+
+            return true;
+        };
+
+        const handleQuantityInput = () => {
+            const quantity = clampQuantity(qtyInput.value);
+
+            if (String(qtyInput.value) !== String(quantity)) {
+                qtyInput.value = quantity;
+            }
+
+            updateItemTotal(row, quantity);
+
+            clearTimeout(typingTimer);
+            typingTimer = setTimeout(() => {
+                syncQuantity(quantity).catch((error) => {
+                    console.error("Cart input sync error:", error);
+                });
+            }, 250);
+        };
+
+        qtyInput.addEventListener("input", handleQuantityInput);
+
+        qtyInput.addEventListener("blur", () => {
+            const quantity = clampQuantity(qtyInput.value);
+            qtyInput.value = quantity;
+            updateItemTotal(row, quantity);
+
+            clearTimeout(typingTimer);
+            syncQuantity(quantity).catch((error) => {
+                console.error("Cart blur sync error:", error);
+            });
+        });
+
         form.querySelectorAll(".qty-btn").forEach((button) => {
             button.addEventListener("click", async (e) => {
                 e.preventDefault();
 
-                if (!qtyInput || !productInput) return;
-
+                const currentQuantity = clampQuantity(qtyInput.value);
                 const delta = Number(button.dataset.delta || 0);
-                const currentQuantity = Number(qtyInput.value || 1);
-                const maxQuantity = Number(qtyInput.max || 0);
+                const nextQuantity = clampQuantity(currentQuantity + delta);
 
-                let newQuantity = currentQuantity + delta;
-
-                if (newQuantity < 1) {
+                if (delta < 0 && currentQuantity === 1) {
+                    openDeleteModal(row);
                     return;
                 }
 
-                if (maxQuantity > 0) {
-                    newQuantity = Math.min(newQuantity, maxQuantity);
-                }
-
-                if (newQuantity === currentQuantity) {
+                if (nextQuantity === currentQuantity) {
                     return;
                 }
-
-                const formData = new FormData();
-                formData.append("product_id", productInput.value);
-                formData.append("quantity", String(newQuantity));
 
                 try {
-                    const { data } = await sendCartRequest(form.action, formData);
-
-                    if (!data.ok) {
-                        alert(data.error || "Ошибка");
-                        return;
-                    }
-
-                    qtyInput.value = newQuantity;
-                    updateItemTotal(row, newQuantity);
-                    refreshCartUI(data);
-
+                    const success = await syncQuantity(nextQuantity);
+                    if (!success) return;
                 } catch (error) {
                     console.error("Cart update error:", error);
                 }
@@ -171,32 +316,11 @@ document.addEventListener("DOMContentLoaded", () => {
         form.addEventListener("submit", async (e) => {
             e.preventDefault();
 
-            if (!qtyInput || !productInput) return;
-
-            const currentQuantity = Number(qtyInput.value || 1);
-            const maxQuantity = Number(qtyInput.max || 0);
-
-            let newQuantity = currentQuantity;
-
-            if (newQuantity < 1) newQuantity = 1;
-            if (maxQuantity > 0) newQuantity = Math.min(newQuantity, maxQuantity);
-
-            const formData = new FormData();
-            formData.append("product_id", productInput.value);
-            formData.append("quantity", String(newQuantity));
+            const quantity = clampQuantity(qtyInput.value);
+            qtyInput.value = quantity;
 
             try {
-                const { data } = await sendCartRequest(form.action, formData);
-
-                if (!data.ok) {
-                    alert(data.error || "Ошибка");
-                    return;
-                }
-
-                qtyInput.value = newQuantity;
-                updateItemTotal(row, newQuantity);
-                refreshCartUI(data);
-
+                await syncQuantity(quantity);
             } catch (error) {
                 console.error("Cart submit error:", error);
             }
@@ -207,6 +331,8 @@ document.addEventListener("DOMContentLoaded", () => {
         form.addEventListener("submit", async (e) => {
             e.preventDefault();
 
+            const row = form.closest(".cart-item");
+
             try {
                 const formData = new FormData(form);
                 const { data } = await sendCartRequest(form.action, formData);
@@ -216,13 +342,11 @@ document.addEventListener("DOMContentLoaded", () => {
                     return;
                 }
 
-                const row = form.closest(".cart-item");
                 if (row) row.remove();
-
                 refreshCartUI(data);
 
                 if (Number(data.items_count) === 0) {
-                    window.location.reload();
+                    renderEmptyCart();
                 }
             } catch (error) {
                 console.error("Cart remove error:", error);

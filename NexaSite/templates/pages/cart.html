@@ -32,7 +32,7 @@
                     <div class="cart-items">
                         {% for item in items %}
                             {% with main_image=item.product.images.all|first %}
-                            <article class="cart-item" data-unit-price="{{ item.product.price|floatformat:2 }}">
+                            <article class="cart-item" data-unit-price="{{ item.product.price }}">
                                 <a class="cart-item-image" href="/product/{{ item.product.slug }}/">
                                     <img
                                         src="{% if main_image %}{{ main_image.image.url }}{% else %}{% static 'images/placeholder.png' %}{% endif %}"
@@ -52,7 +52,7 @@
                                         </span>
                                         <span class="cart-item-stock">
                                             {% if item.product.stock > 0 %}
-                                                В наличии: {{ item.product.stock }}
+                                                В наличии: {% if item.product.stock > 99 %}99+{% else %}{{ item.product.stock }}{% endif %}
                                             {% else %}
                                                 Нет в наличии
                                             {% endif %}
@@ -139,4 +139,19 @@
         {% endif %}
     </section>
 </div>
+
+<div class="cart-delete-modal" id="cartDeleteModal" aria-hidden="true">
+    <div class="cart-delete-modal__backdrop" data-cart-delete-close></div>
+
+    <div class="cart-delete-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="cartDeleteTitle">
+        <h3 id="cartDeleteTitle">Количество товара не может быть меньше 1</h3>
+        <p>Удалить товар из корзины?</p>
+
+        <div class="cart-delete-modal__actions">
+            <button type="button" class="cart-delete-modal__remove" id="cartDeleteConfirm">Удалить товар</button>
+            <button type="button" class="cart-delete-modal__cancel" id="cartDeleteCancel">Отмена</button>
+        </div>
+    </div>
+</div>
+
 {% endblock %}
