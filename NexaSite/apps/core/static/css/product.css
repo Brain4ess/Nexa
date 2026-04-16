@@ -192,6 +192,10 @@ html[data-theme="dark"] .main-image img.placeholder {
     transition: transform .15s ease, opacity .2s ease, box-shadow .2s ease;
 }
 
+.add-to-cart img {
+    filter: invert(1) brightness(2);
+}
+
 .add-to-cart:hover {
     transform: scale(1.06);
     box-shadow: 0 10px 20px rgba(37, 99, 235, 0.28);
