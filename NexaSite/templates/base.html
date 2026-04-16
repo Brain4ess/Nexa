@@ -11,6 +11,7 @@
     <link rel="stylesheet" href="{% static 'css/footer.css' %}">
     <link rel="stylesheet" href="{% static 'css/base.css' %}">
     <link rel="stylesheet" href="{% static 'css/cart-popup.css' %}">
+    <link rel="stylesheet" href="{% static 'css/not-enough-stock-popup.css' %}">
     
     {% block extra_css %}{% endblock %}
     
@@ -30,6 +31,12 @@
         <div class="cart-popup-content">
             <span class="cart-popup-text">Товар добавлен в корзину</span>
             <a href="/cart/" class="cart-popup-link">Перейти</a>
+        </div>
+    </div>
+
+    <div id="not-enough-stock-popup" class="not-enough-stock-popup">
+        <div class="not-enough-stock-popup-content">
+            <span class="not-enough-stock-popup-text">Недостаточно товара</span>
         </div>
     </div>
 

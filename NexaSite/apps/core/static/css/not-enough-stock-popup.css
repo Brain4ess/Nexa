@@ -1,0 +1,66 @@
+.not-enough-stock-popup {
+    position: fixed;
+    top: 88px;
+    left: 50%;
+    z-index: 1000;
+
+    width: fit-content;
+    max-width: min(420px, calc(100vw - 24px));
+    display: inline-flex;
+
+    padding: 14px 16px;
+    border-radius: 14px;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.16);
+
+    opacity: 0;
+    transform: translate(-50%, -18px);
+    pointer-events: none;
+
+    transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+.not-enough-stock-popup.show {
+    opacity: 1;
+    transform: translate(-50%, 0);
+    pointer-events: auto;
+}
+
+.not-enough-stock-popup-content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+}
+
+.not-enough-stock-popup-text {
+    font-size: 14px;
+    line-height: 1.4;
+    color: var(--text);
+    font-weight: 600;
+    text-align: center;
+    white-space: nowrap;
+}
+
+@media (max-width: 900px) {
+    .not-enough-stock-popup {
+        top: 78px;
+        max-width: min(360px, calc(100vw - 20px));
+        padding: 12px 14px;
+    }
+}
+
+@media (max-width: 480px) {
+    .not-enough-stock-popup {
+        top: 72px;
+        max-width: calc(100vw - 16px);
+        padding: 12px 14px;
+        border-radius: 12px;
+    }
+
+    .not-enough-stock-popup-text {
+        white-space: normal;
+        font-size: 13px;
+    }
+}

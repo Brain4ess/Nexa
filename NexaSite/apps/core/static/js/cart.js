@@ -195,6 +195,11 @@ document.addEventListener("DOMContentLoaded", () => {
                 const { data } = await sendCartRequest(form.action, formData);
 
                 if (!data.ok) {
+                    if (data.error === "Not enough stock" || data.error === "Недостаточно товара") {
+                        showNotEnoughStockPopup();
+                        return;
+                    }
+
                     alert(data.error || "Ошибка");
                     return;
                 }
@@ -353,4 +358,16 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         });
     });
+
+    const showNotEnoughStockPopup = () => {
+        const popup = document.getElementById("not-enough-stock-popup");
+        if (!popup) return;
+
+        popup.classList.add("show");
+        clearTimeout(popup.hideTimeout);
+
+        popup.hideTimeout = setTimeout(() => {
+            popup.classList.remove("show");
+        }, 2500);
+    };
 });
