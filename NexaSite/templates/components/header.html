@@ -80,30 +80,63 @@
 </header>
 
 <script>
-    const themeToggle = document.getElementById("themeToggle");
-    const themeIcon = document.getElementById("themeIcon");
+    document.addEventListener('DOMContentLoaded', function() {
+        const darkIcon = "{% static 'images/dark_theme_icon.png' %}";
+        const lightIcon = "{% static 'images/white_theme_icon.png' %}";
+        
+        const themeToggle = document.getElementById("themeToggle");
+        const themeIcon = document.getElementById("themeIcon");
 
-    function updateThemeIcon() {
-        if (document.body.classList.contains("dark-theme")) {
-            themeIcon.src = "{% static 'images/dark_theme_icon.png' %}";
-        } else {
-            themeIcon.src = "{% static 'images/white_theme_icon.png' %}";
+        function syncIcon() {
+            const isDark = document.documentElement.classList.contains("dark-theme");
+            
+            if (isDark) {
+                themeIcon.src = darkIcon;
+            } else {
+                themeIcon.src = lightIcon;
+            }
         }
-    }
 
-    themeToggle.addEventListener("click", () => {
-        document.body.classList.toggle("dark-theme");
-        document.body.classList.toggle("light-theme");
-        updateThemeIcon();
-    });
+        function setTheme(theme) {
+            if (theme === "dark") {
+                document.documentElement.classList.add("dark-theme");
+                document.documentElement.classList.remove("light-theme");
+                localStorage.setItem("theme", "dark");
+            } else {
+                document.documentElement.classList.add("light-theme");
+                document.documentElement.classList.remove("dark-theme");
+                localStorage.setItem("theme", "light");
+            }
+            syncIcon();
+        }
 
-    updateThemeIcon();
+        function toggleTheme() {
+            const isDark = document.documentElement.classList.contains("dark-theme");
+            
+            if (isDark) {
+                setTheme("light");
+            } else {
+                setTheme("dark");
+            }
+        }
 
-    const hamburger = document.getElementById("hamburger");
-    const mobileNav = document.getElementById("mobileNav");
+        function loadTheme() {
+            const savedTheme = localStorage.getItem("theme");
+            
+            if (savedTheme === "dark") {
+                setTheme("dark");
+            } else if (savedTheme === "light") {
+                setTheme("light");
+            } else {
+                setTheme("light");
+            }
+        }
+        
+        loadTheme();
 
-    hamburger.addEventListener("click", () => {
-        mobileNav.classList.toggle("active");
+        if (themeToggle) {
+            themeToggle.addEventListener("click", toggleTheme);
+        }
     });
 </script>
 
