@@ -108,49 +108,49 @@ document.addEventListener("DOMContentLoaded", () => {
         `;
     };
 
-    const modal = document.getElementById("cartDeleteModal");
-    const modalConfirm = document.getElementById("cartDeleteConfirm");
-    const modalCancel = document.getElementById("cartDeleteCancel");
+    const confirmModal = document.getElementById("confirmModal");
+    const modalConfirmButton = document.getElementById("confirmModalConfirm");
+    const modalCancelButton = document.getElementById("confirmModalCancel");
 
     let pendingRemoveRow = null;
+    let pendingRemoveForm = null;
 
-    const openDeleteModal = (row) => {
+    const openConfirmModal = (row, form = null) => {
         pendingRemoveRow = row;
-        if (!modal) return;
+        pendingRemoveForm = form;
+        if (!confirmModal) return;
 
-        modal.classList.add("is-open");
+        confirmModal.classList.add("is-open");
         document.body.classList.add("cart-lock");
     };
 
-    const closeDeleteModal = () => {
-        if (!modal) return;
+    const closeConfirmModal = () => {
+        if (!confirmModal) return;
 
-        modal.classList.remove("is-open");
+        confirmModal.classList.remove("is-open");
         document.body.classList.remove("cart-lock");
         pendingRemoveRow = null;
+        pendingRemoveForm = null;
     };
 
-    if (modal) {
-        modal.addEventListener("click", (e) => {
-            if (e.target.matches("[data-cart-delete-close]")) {
-                closeDeleteModal();
+    if (confirmModal) {
+        confirmModal.addEventListener("click", (e) => {
+            if (e.target.matches("[data-modal-close]")) {
+                closeConfirmModal();
             }
         });
     }
 
-    if (modalCancel) {
-        modalCancel.addEventListener("click", closeDeleteModal);
+    if (modalCancelButton) {
+        modalCancelButton.addEventListener("click", closeConfirmModal);
     }
 
-    if (modalConfirm) {
-        modalConfirm.addEventListener("click", async () => {
-            if (!pendingRemoveRow) return;
+    if (modalConfirmButton) {
+        modalConfirmButton.addEventListener("click", async () => {
+            const removeForm = pendingRemoveForm || pendingRemoveRow?.querySelector(".cart-remove-form");
+            if (!removeForm) return;
 
-            const removeForm = pendingRemoveRow.querySelector(".cart-remove-form");
-            if (!removeForm) {
-                closeDeleteModal();
-                return;
-            }
+            const row = pendingRemoveRow || removeForm.closest(".cart-item");
 
             try {
                 const formData = new FormData(removeForm);
@@ -161,23 +161,26 @@ document.addEventListener("DOMContentLoaded", () => {
                     return;
                 }
 
-                pendingRemoveRow.remove();
+                if (row) {
+                    row.remove();
+                }
                 refreshCartUI(data);
-                closeDeleteModal();
 
                 if (Number(data.items_count) === 0) {
                     renderEmptyCart();
                 }
+                closeConfirmModal();
+
             } catch (error) {
                 console.error("Cart remove error:", error);
-                closeDeleteModal();
+                closeConfirmModal();
             }
         });
     }
 
     document.addEventListener("keydown", (e) => {
         if (e.key === "Escape") {
-            closeDeleteModal();
+            closeConfirmModal();
         }
     });
 
@@ -301,7 +304,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 const nextQuantity = clampQuantity(currentQuantity + delta);
 
                 if (delta < 0 && currentQuantity === 1) {
-                    openDeleteModal(row);
+                    openConfirmModal(row);
                     return;
                 }
 
@@ -333,29 +336,13 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     document.querySelectorAll(".cart-remove-form").forEach((form) => {
-        form.addEventListener("submit", async (e) => {
+        form.addEventListener("submit", (e) => {
             e.preventDefault();
 
             const row = form.closest(".cart-item");
-
-            try {
-                const formData = new FormData(form);
-                const { data } = await sendCartRequest(form.action, formData);
-
-                if (!data.ok) {
-                    alert(data.error || "Ошибка");
-                    return;
-                }
-
-                if (row) row.remove();
-                refreshCartUI(data);
-
-                if (Number(data.items_count) === 0) {
-                    renderEmptyCart();
-                }
-            } catch (error) {
-                console.error("Cart remove error:", error);
-            }
+            pendingRemoveRow = row;
+            pendingRemoveForm = form;
+            openConfirmModal(row, form);
         });
     });
 

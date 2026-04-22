@@ -140,16 +140,16 @@
     </section>
 </div>
 
-<div class="cart-delete-modal" id="cartDeleteModal" aria-hidden="true">
-    <div class="cart-delete-modal__backdrop" data-cart-delete-close></div>
+<div class="modal" id="confirmModal" aria-hidden="true">
+    <div class="modal__backdrop" data-modal-close></div>
 
-    <div class="cart-delete-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="cartDeleteTitle">
-        <h3 id="cartDeleteTitle">Количество товара не может быть меньше 1</h3>
-        <p>Удалить товар из корзины?</p>
+    <div class="modal__dialog" role="dialog" aria-modal="true" aria-labelledby="confirmModalTitle">
+        <h3 id="confirmModalTitle">Удаление товара</h3>
+        <p>Удалить выбранный товар? Отменить действие будет невозможно.</p>
 
-        <div class="cart-delete-modal__actions">
-            <button type="button" class="cart-delete-modal__remove" id="cartDeleteConfirm">Удалить товар</button>
-            <button type="button" class="cart-delete-modal__cancel" id="cartDeleteCancel">Отмена</button>
+        <div class="modal__actions">
+            <button type="button" class="modal__confirm" id="confirmModalConfirm">Удалить</button>
+            <button type="button" class="modal__cancel" id="confirmModalCancel">Отмена</button>
         </div>
     </div>
 </div>
