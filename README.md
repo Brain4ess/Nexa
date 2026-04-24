@@ -61,7 +61,7 @@ POSTGRES_DB_KEY=your_database_key
 # Run Migrations
 
 ```
-python manage.py migrate
+py manage.py migrate
 ```
 
 ---
@@ -69,7 +69,7 @@ python manage.py migrate
 # Create a Superuser
 
 ```
-python manage.py createsuperuser
+py manage.py createsuperuser
 ```
 
 ---
@@ -77,7 +77,7 @@ python manage.py createsuperuser
 # Run the Development Server
 
 ```
-python manage.py runserver
+py manage.py runserver
 ```
 
 The admin panel will be available at:
