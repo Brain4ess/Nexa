@@ -110,7 +110,20 @@
         <div class="product-bottom">
             <div class="product-description">
                 <h2>Описание</h2>
-                <p>{{ product.description|default:"Описание отсутствует"|linebreaksbr }}</p>
+
+                <p id="descShort">
+                    {{ product.description|default:"Описание отсутствует"|truncatechars:100 }}
+                </p>
+
+                <p id="descFull" style="display: none;">
+                    {{ product.description|default:"Описание отсутствует"|linebreaksbr }}
+                </p>
+
+                {% if product.description|length > 100 %}
+                <button id="descToggle" class="desc-toggle">
+                    Подробнее
+                </button>
+                {% endif %}
             </div>
 
             <div class="product-specs">
@@ -146,4 +159,31 @@
 </div>
 
 <script src="{% static 'js/product-gallery.js' %}" defer></script>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    const btn = document.getElementById("descToggle");
+    const shortText = document.getElementById("descShort");
+    const fullText = document.getElementById("descFull");
+
+    if (!btn) return;
+
+    let isOpen = false;
+
+    btn.addEventListener("click", () => {
+        isOpen = !isOpen;
+
+        if (isOpen) {
+            shortText.style.display = "none";
+            fullText.style.display = "block";
+            btn.textContent = "Скрыть";
+        } else {
+            shortText.style.display = "block";
+            fullText.style.display = "none";
+            btn.textContent = "Подробнее";
+        }
+    });
+});
+</script>
+
 {% endblock %}

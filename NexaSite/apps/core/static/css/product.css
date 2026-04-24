@@ -244,6 +244,31 @@ html[data-theme="dark"] .main-image img.placeholder {
     color: var(--text);
 }
 
+/* ===== DESCRIPTION TOGGLE ===== */
+
+#descShort,
+#descFull {
+    line-height: 1.7;
+    color: var(--text);
+}
+
+.desc-toggle {
+    margin-top: 10px;
+    background: none;
+    border: none;
+    color: var(--accent);
+    cursor: pointer;
+    font-weight: 500;
+    font-size: 14px;
+    padding: 0;
+    transition: opacity 0.2s ease;
+}
+
+.desc-toggle:hover {
+    opacity: 0.7;
+    text-decoration: underline;
+}
+
 .spec-group {
     padding-top: 18px;
     margin-top: 18px;
