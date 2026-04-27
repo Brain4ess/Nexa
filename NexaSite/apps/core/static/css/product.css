@@ -72,6 +72,16 @@
     display: block;
 }
 
+.thumbnail img.placeholder,
+.main-image img.placeholder {
+    opacity: 0.85;
+}
+
+html[data-theme="dark"] .thumbnail img.placeholder,
+html[data-theme="dark"] .main-image img.placeholder {
+    filter: invert(1) brightness(1.8);
+}
+
 .main-image {
     position: relative;
     width: 100%;
@@ -136,6 +146,11 @@
 
 .product-stock.out-stock {
     color: #dc2626;
+}
+
+.main-image img {
+    max-width: 420px;
+    max-height: 360px;
 }
 
 .product-buy {
@@ -377,6 +392,13 @@
         padding: 12px;
     }
 
+    .main-image img {
+        width: 100%;
+        height: 100%;
+        max-width: none;
+        max-height: none;
+    }
+    
     .product-layout {
         padding: 14px;
         gap: 16px;
