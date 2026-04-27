@@ -148,11 +148,6 @@ html[data-theme="dark"] .main-image img.placeholder {
     color: #dc2626;
 }
 
-.main-image img {
-    max-width: 420px;
-    max-height: 360px;
-}
-
 .product-buy {
     margin-top: 18px;
     display: flex;
@@ -358,6 +353,11 @@ html[data-theme="dark"] .main-image img.placeholder {
 
     .main-image {
         height: clamp(240px, 62vw, 360px);
+    }
+
+    .main-image img {
+        max-width: 420px;
+        max-height: 360px;
     }
 
     .product-buy {
