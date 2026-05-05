@@ -1,0 +1,19 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>404 — Nexa</title>
+    <link rel="stylesheet" href="{% static 'css/base.css' %}">
+    <link rel="stylesheet" href="{% static 'css/404.css' %}">
+    <script src="{% static 'js/theme.js' %}" defer></script>
+</head>
+<body class="error-page">
+    <main class="error-page__content">
+        <div class="error-page__code">404</div>
+        <p class="error-page__text">Страница не найдена</p>
+        <a href="/" class="error-page__button">На главную</a>
+    </main>
+</body>
+</html>

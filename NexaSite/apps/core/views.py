@@ -29,3 +29,6 @@ def catalog(request, slug=None):
         "categories": categories,
         "is_category_view": False
     })
+
+def custom_404(request):
+    return render(request, "404.html", status=404)

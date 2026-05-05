@@ -1,0 +1,99 @@
+:root {
+    --error-code: #5b7fd8;
+    --error-button-bg: rgba(148, 163, 184, 0.16);
+    --error-button-bg-hover: rgba(148, 163, 184, 0.26);
+    --error-button-text: var(--text);
+}
+
+html,
+body {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+}
+
+body.error-page {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background:
+        radial-gradient(circle at top, rgba(91, 127, 216, 0.12), transparent 40%),
+        linear-gradient(180deg, var(--bg) 0%, color-mix(in srgb, var(--bg) 92%, #e2e8f0 8%) 100%);
+    color: var(--text);
+}
+
+.error-page__content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 18px;
+    text-align: center;
+    padding: 24px;
+}
+
+.error-page__code {
+    font-size: clamp(88px, 16vw, 220px);
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: 0.02em;
+    text-indent: 0.02em;
+    color: var(--error-code);
+    text-shadow: 0 10px 30px rgba(91, 127, 216, 0.18);
+    user-select: none;
+}
+
+.error-page__text {
+    margin: 0;
+    font-size: clamp(18px, 2vw, 24px);
+    font-weight: 500;
+    color: var(--muted);
+}
+
+.error-page__button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 180px;
+    padding: 14px 22px;
+    border-radius: 999px;
+    background: var(--error-button-bg);
+    color: var(--error-button-text);
+    text-decoration: none;
+    font-size: 15px;
+    font-weight: 600;
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.10);
+    transition:
+        transform 0.2s ease,
+        background-color 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.error-page__button:hover {
+    background: var(--error-button-bg-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 14px 28px rgba(0, 0, 0, 0.14);
+}
+
+.error-page__button:active {
+    transform: translateY(0);
+    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.10);
+}
+
+@media (max-width: 600px) {
+    .error-page__content {
+        gap: 14px;
+        padding: 20px;
+    }
+
+    .error-page__code {
+        letter-spacing: 0.08em;
+        text-indent: 0.08em;
+    }
+
+    .error-page__button {
+        min-width: 160px;
+        padding: 13px 20px;
+    }
+}
