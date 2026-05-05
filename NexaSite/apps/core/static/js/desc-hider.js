@@ -1,22 +1,26 @@
 document.addEventListener("DOMContentLoaded", () => {
-    const btn = document.getElementById("descToggle");
     const wrapper = document.getElementById("descWrapper");
+    const content = document.getElementById("productDesc");
     const controls = document.getElementById("descControls");
+    const btn = document.getElementById("descToggle");
 
-    if (!btn || !wrapper || !controls) return;
+    if (!wrapper || !content || !controls || !btn) return;
+
+    const text = content.textContent.trim();
+
+    if (text.length <= 100) {
+        controls.remove();
+        return;
+    }
 
     let isOpen = false;
 
+    content.classList.add("is-collapsed");
+    btn.hidden = false;
+
     btn.addEventListener("click", () => {
         isOpen = !isOpen;
-        wrapper.classList.toggle("open", isOpen);
-
-        if (isOpen) {
-            btn.textContent = "Скрыть";
-            controls.classList.add("expanded");
-        } else {
-            btn.textContent = "Развернуть";
-            controls.classList.remove("expanded");
-        }
+        content.classList.toggle("is-collapsed", !isOpen);
+        btn.textContent = isOpen ? "Скрыть" : "Развернуть";
     });
 });

@@ -195,6 +195,9 @@ html[data-theme="dark"] .main-image img.placeholder {
 
 .add-to-cart img {
     filter: invert(1) brightness(2);
+    width: 22px;
+    height: 22px;
+    display: block;
 }
 
 .add-to-cart:hover {
@@ -210,12 +213,6 @@ html[data-theme="dark"] .main-image img.placeholder {
     opacity: 0.5;
     cursor: not-allowed;
     box-shadow: none;
-}
-
-.add-to-cart img {
-    width: 22px;
-    height: 22px;
-    display: block;
 }
 
 .product-bottom {
@@ -239,35 +236,40 @@ html[data-theme="dark"] .main-image img.placeholder {
     font-size: 20px;
 }
 
-.product-description p {
-    line-height: 1.7;
-    color: var(--text);
-}
-
 .desc-wrapper {
-    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
 }
 
 .desc-content {
-    max-height: 3.2em; 
+    color: var(--text);
+    line-height: 1.7;
+    white-space: pre-line;
+    word-break: break-word;
+}
+
+.desc-content.is-collapsed {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
     overflow: hidden;
-    line-height: 1.6;
 }
 
 .desc-controls {
-    margin-top: 12px;
-    text-align: center;
+    display: flex;
+    justify-content: center;
 }
 
 .desc-toggle {
-    background: none;
-    border: none;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
     color: var(--accent);
     cursor: pointer;
     font-weight: 500;
     font-size: 14px;
     padding: 8px 16px;
-    transition: opacity 0.2s ease;
+    transition: opacity 0.2s ease, background-color 0.2s ease, border-color 0.2s ease;
     border-radius: 20px;
 }
 
@@ -276,12 +278,16 @@ html[data-theme="dark"] .main-image img.placeholder {
     background: rgba(37, 99, 235, 0.05);
 }
 
-.desc-wrapper.open .desc-content {
-    max-height: none;
-}
-
-.desc-controls.expanded {
-    margin-top: 16px;
+.desc-empty {
+    min-height: 84px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    color: var(--muted);
+    font-weight: 500;
+    line-height: 1.5;
+    padding: 12px 8px;
 }
 
 .spec-group {
@@ -442,5 +448,14 @@ html[data-theme="dark"] .main-image img.placeholder {
 
     .spec-value {
         text-align: left;
+    }
+
+    .desc-content.is-collapsed {
+        -webkit-line-clamp: 4;
+    }
+
+    .desc-empty {
+        min-height: 72px;
+        padding: 10px 6px;
     }
 }

@@ -111,17 +111,19 @@
             <div class="product-description">
                 <h2>Описание</h2>
 
-                <div class="desc-wrapper" id="descWrapper">
-                    <div class="desc-content" id="productDesc">
-                        <p>{{ product.description|default:"Описание отсутствует"|linebreaksbr }}</p>
-                    </div>
+                {% if product.description %}
+                    <div class="desc-wrapper" id="descWrapper">
+                        <div class="desc-content" id="productDesc">{{ product.description }}</div>
 
-                    {% if product.description|length > 100 %}
-                    <div class="desc-controls" id="descControls">
-                        <button type="button" id="descToggle" class="desc-toggle">Развернуть</button>
+                        <div class="desc-controls" id="descControls">
+                            <button type="button" id="descToggle" class="desc-toggle" hidden>
+                                Развернуть
+                            </button>
+                        </div>
                     </div>
-                    {% endif %}
-                </div>
+                {% else %}
+                    <div class="desc-empty">Описание отсутствует</div>
+                {% endif %}
             </div>
 
             <div class="product-specs">
