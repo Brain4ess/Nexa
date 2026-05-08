@@ -49,11 +49,12 @@ class Product(TimestampMixin, SlugMixin):
 
     @property
     def average_rating(self):
-        return self.reviews.aggregate(avg=Avg("rating"))["avg"] or 0
+        average = self.reviews.filter(is_approved=True).aggregate(avg=Avg("rating"))["avg"]
+        return round(float(average), 1) if average else 0
 
     @property
     def reviews_count(self):
-        return self.reviews.count()
+        return self.reviews.filter(is_approved=True).count()
 
 class ProductImage(TimestampMixin):
     product = models.ForeignKey(

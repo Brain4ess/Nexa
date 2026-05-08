@@ -78,7 +78,13 @@
                                 </div>
 
                                 <div class="product-bottom">
-                                    <div class="product-rating">{{ product.average_rating|default:"0" }} ★</div>
+                                    <div class="product-rating">
+                                        {% if product.reviews_total %}
+                                            {{ product.reviews_avg|floatformat:1 }} ★
+                                        {% else %}
+                                            0 ★
+                                        {% endif %}
+                                    </div>
                                 </div>
                             </div>
                         </a>

@@ -1,7 +1,9 @@
 from django.core.paginator import Paginator
 from django.shortcuts import render, get_object_or_404
+from django.db.models import Avg, Count, Q
 from apps.categories.models import Category
 from apps.catalog.models import Product
+from apps.reviews.models import Review
 
 def get_page_numbers(paginator, current_page_number, window_size=3):
     total_pages = paginator.num_pages
@@ -36,7 +38,10 @@ def catalog_view(request, slug=None):
         products_qs = Product.objects.filter(
             category=current_category,
             is_active=True
-        ).prefetch_related("images")
+        ).prefetch_related("images").annotate(
+            reviews_avg=Avg("reviews__rating", filter=Q(reviews__is_approved=True)),
+            reviews_total=Count("reviews", filter=Q(reviews__is_approved=True)),
+        )
 
         paginator = Paginator(products_qs, 10)
         page_obj = paginator.get_page(request.GET.get("page"))
@@ -63,8 +68,16 @@ def product_view(request, slug):
         slug=slug
     )
 
+    reviews_qs = product.reviews.filter(is_approved=True).select_related("user").order_by("-created_at")
+    reviews = list(reviews_qs[:5])
+    reviews_count = reviews_qs.count()
+
     context = {
-        "product": product
+        "product": product,
+        "reviews": reviews,
+        "reviews_count": reviews_count,
+        "has_more_reviews": reviews_count > 5,
+        "review_usage_choices": Review.UsagePeriod.choices,
     }
 
     return render(request, "pages/product.html", context)

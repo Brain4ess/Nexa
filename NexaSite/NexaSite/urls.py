@@ -16,18 +16,18 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from apps.core.views import index, about
+from apps.core.views import index, about, custom_404
 from django.conf import settings
 from django.conf.urls.static import static
 
+handler404 = custom_404
+
 urlpatterns = [
-    path('admin/', admin.site.urls),
-
-    path('', index, name='index'),
+    path("admin/", admin.site.urls),
+    path("", index, name='index'),
     path("catalog/", include("apps.catalog.urls")),
-    
+    path("reviews/", include("apps.reviews.urls")),
     path("", include("apps.users.urls")),
-
     path("cart/", include("apps.cart.urls")),
     path("account", index, name='account'),
     path("about", about, name='about'),

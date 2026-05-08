@@ -85,11 +85,13 @@
                             {{ product.price|floatformat:0|stringformat:"s"|intcomma }} ₽
                         </div>
 
-                        <div class="product-rating">
-                            {% if product.average_rating %}
-                                {{ product.average_rating|floatformat:1 }} ★ ({{ product.reviews_count }})
+                        <div class="product-rating" data-product-rating>
+                            {% if reviews_count %}
+                                <span id="productAverageRating">{{ product.average_rating|floatformat:1 }}</span> ★
+                                <span id="productReviewsCount">({{ reviews_count }})</span>
                             {% else %}
-                                0 ★ (0)
+                                <span id="productAverageRating">0</span> ★
+                                <span id="productReviewsCount">(0)</span>
                             {% endif %}
                         </div>
                     </div>
@@ -126,33 +128,162 @@
                 {% endif %}
             </div>
 
-            <div class="product-specs">
-                <h2>Характеристики</h2>
+            <div class="product-tabs" id="productTabs">
+                <div class="product-tabs__nav" role="tablist" aria-label="Разделы товара">
+                    <button type="button" class="product-tabs__btn is-active" data-product-tab="specs" aria-selected="true">
+                        Характеристики
+                    </button>
+                    <button type="button" class="product-tabs__btn" data-product-tab="reviews" aria-selected="false">
+                        Отзывы
+                    </button>
+                    <span class="product-tabs__indicator" id="productTabsIndicator" aria-hidden="true"></span>
+                </div>
 
-                {% with product_attrs=product.attributes.all category_groups=product.category.attribute_groups.all %}
-                    {% if category_groups %}
-                        {% for group in category_groups %}
-                            <div class="spec-group">
-                                <h3 class="spec-group-title">{{ group.name }}</h3>
+                <div class="product-tabs__panels">
+                    <section class="product-tab-panel is-active" data-product-panel="specs" role="tabpanel">
+                        <div class="product-specs">
+                            <h2>Характеристики</h2>
 
-                                <div class="spec-list">
-                                    {% for attribute in group.attributes.all %}
-                                        {% for product_attr in product_attrs %}
-                                            {% if product_attr.attribute_id == attribute.id %}
-                                                <div class="spec-row">
-                                                    <span class="spec-name">{{ attribute.name }}</span>
-                                                    <span class="spec-value">{{ product_attr.value|default:"—" }}</span>
-                                                </div>
-                                            {% endif %}
-                                        {% endfor %}
+                            {% with product_attrs=product.attributes.all category_groups=product.category.attribute_groups.all %}
+                                {% if category_groups %}
+                                    {% for group in category_groups %}
+                                        <div class="spec-group">
+                                            <h3 class="spec-group-title">{{ group.name }}</h3>
+
+                                            <div class="spec-list">
+                                                {% for attribute in group.attributes.all %}
+                                                    {% for product_attr in product_attrs %}
+                                                        {% if product_attr.attribute_id == attribute.id %}
+                                                            <div class="spec-row">
+                                                                <span class="spec-name">{{ attribute.name }}</span>
+                                                                <span class="spec-value">{{ product_attr.value|default:"—" }}</span>
+                                                            </div>
+                                                        {% endif %}
+                                                    {% endfor %}
+                                                {% endfor %}
+                                            </div>
+                                        </div>
                                     {% endfor %}
+                                {% else %}
+                                    <p class="empty">Характеристики отсутствуют.</p>
+                                {% endif %}
+                            {% endwith %}
+                        </div>
+                    </section>
+
+                    <section class="product-tab-panel" data-product-panel="reviews" role="tabpanel">
+                        <div class="reviews-panel">
+                            <div class="reviews-panel__head">
+                                <div>
+                                    <h2>Отзывы</h2>
+                                    <p class="reviews-panel__meta">
+                                        <span id="reviewsTotalCount">{{ reviews_count }}</span> отзывов
+                                    </p>
                                 </div>
                             </div>
-                        {% endfor %}
-                    {% else %}
-                        <p class="empty">Характеристики отсутствуют.</p>
-                    {% endif %}
-                {% endwith %}
+
+                            <div class="reviews-list" id="reviewsList">
+                                {% if reviews %}
+                                    {% include "components/review_items.html" with reviews=reviews %}
+                                {% else %}
+                                    <div class="reviews-empty" data-reviews-empty>Пока нет отзывов. Будьте первым.</div>
+                                {% endif %}
+                            </div>
+
+                            {% if has_more_reviews %}
+                                <button
+                                    type="button"
+                                    class="reviews-more-btn"
+                                    id="reviewsMoreButton"
+                                    data-url="{% url 'product_reviews_more' product.slug %}"
+                                    data-offset="5"
+                                >
+                                    Показать ещё
+                                </button>
+                            {% endif %}
+
+                            <div class="review-form-block">
+                                <h3>Оставить отзыв</h3>
+
+                                {% if user.is_authenticated %}
+                                    <form
+                                        class="review-form"
+                                        id="reviewForm"
+                                        action="{% url 'product_review_create' product.slug %}"
+                                        method="post"
+                                        novalidate
+                                    >
+                                        {% csrf_token %}
+
+                                        <div class="review-form__error" id="reviewFormError" hidden></div>
+
+                                        <input type="hidden" name="rating" id="reviewRatingInput" value="0">
+
+                                        <div class="review-form__field">
+                                            <label class="review-form__label">Оценка</label>
+                                            <div class="review-stars" data-review-stars>
+                                                {% for i in "12345" %}
+                                                    <button type="button" class="review-star" data-value="{{ forloop.counter }}" aria-label="{{ forloop.counter }} из 5">
+                                                        ★
+                                                    </button>
+                                                {% endfor %}
+                                            </div>
+                                            <div class="review-form__hint" id="reviewRatingHint">Нажмите на звёзды, чтобы поставить оценку</div>
+                                        </div>
+
+                                        <div class="review-form__field">
+                                            <label class="review-form__label" for="reviewTitleInput">Заголовок</label>
+                                            <input
+                                                type="text"
+                                                id="reviewTitleInput"
+                                                name="title"
+                                                maxlength="50"
+                                                placeholder="Короткий заголовок"
+                                                required
+                                            >
+                                            <div class="review-form__meta">
+                                                <span id="reviewTitleCounter">0/50</span>
+                                            </div>
+                                        </div>
+
+                                        <div class="review-form__field">
+                                            <label class="review-form__label" for="reviewUsageInput">Срок использования</label>
+                                            <select id="reviewUsageInput" name="usage_period" required>
+                                                <option value="">Выберите вариант</option>
+                                                {% for value, label in review_usage_choices %}
+                                                    <option value="{{ value }}">{{ label }}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+
+                                        <div class="review-form__field">
+                                            <label class="review-form__label" for="reviewTextInput">Отзыв</label>
+                                            <textarea
+                                                id="reviewTextInput"
+                                                name="text"
+                                                maxlength="3000"
+                                                rows="5"
+                                                placeholder="Расскажите о товаре"
+                                                required
+                                            ></textarea>
+                                            <div class="review-form__meta">
+                                                <span id="reviewTextCounter">0/3000</span>
+                                            </div>
+                                        </div>
+
+                                        <div class="review-form__actions">
+                                            <button type="submit" class="review-submit-btn">Отправить отзыв</button>
+                                        </div>
+                                    </form>
+                                {% else %}
+                                    <div class="reviews-login-note">
+                                        <a href="{% url 'login' %}">Войдите</a>, чтобы оставить отзыв.
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </section>
+                </div>
             </div>
         </div>
     </section>
@@ -160,4 +291,5 @@
 
 <script src="{% static 'js/product-gallery.js' %}" defer></script>
 <script src="{% static 'js/desc-hider.js' %}" defer></script>
+<script src="{% static 'js/product-reviews.js' %}" defer></script>
 {% endblock %}
