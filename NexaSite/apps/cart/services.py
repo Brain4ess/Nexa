@@ -5,6 +5,9 @@ class CartService:
     @staticmethod
     def get_cart(request):
         if request.user.is_authenticated:
+            if request.session.session_key:
+                CartService.merge_guest_cart_to_user(request, request.user)
+
             cart, _ = Cart.objects.get_or_create(user=request.user)
             return cart
 

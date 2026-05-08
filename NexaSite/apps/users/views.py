@@ -13,8 +13,8 @@ def login_view(request):
         user = authenticate(request, username=username, password=password)
 
         if user is not None:
-            login(request, user)
             CartService.merge_guest_cart_to_user(request, user)
+            login(request, user)
             return redirect("/")
         else:
             messages.error(request, "Неверный логин или пароль")
@@ -64,6 +64,7 @@ def register_view(request):
             password=password
         )
 
+        CartService.merge_guest_cart_to_user(request, user)
         login(request, user)
         return redirect("/")
 
