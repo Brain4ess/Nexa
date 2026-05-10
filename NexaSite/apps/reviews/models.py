@@ -1,7 +1,9 @@
+from datetime import timedelta
 from django.conf import settings
 from django.core.validators import MaxValueValidator, MinValueValidator, MaxLengthValidator
+from django.core.exceptions import ValidationError
 from django.db import models
-
+from django.utils import timezone
 from apps.catalog.models import Product
 from apps.core.mixins import TimestampMixin
 
@@ -46,3 +48,41 @@ class Review(TimestampMixin):
 
     def __str__(self):
         return f"{self.product.name} - {self.rating}"
+
+    @property
+    def updates_count(self):
+        return self.updates.count()
+
+    @property
+    def can_add_update(self):
+        if self.updates_count >= 5:
+            return False
+
+        last_update = self.updates.order_by("-created_at").first()
+        if not last_update:
+            return True
+
+        return timezone.now() - last_update.created_at >= timedelta(days=3)
+
+def validate_max_10_lines(value):
+    if len(value.splitlines()) > 10:
+        raise ValidationError("Текст не должен превышать 10 строк")
+
+class ReviewUpdate(TimestampMixin):
+    review = models.ForeignKey(
+        Review,
+        on_delete=models.CASCADE,
+        related_name="updates",
+    )
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="review_updates",
+    )
+    text = models.TextField(validators=[MaxLengthValidator(1000), validate_max_10_lines])
+
+    class Meta:
+        ordering = ["created_at"]
+
+    def __str__(self):
+        return f"Update for review #{self.review_id}"

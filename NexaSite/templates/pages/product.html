@@ -87,10 +87,12 @@
 
                         <div class="product-rating" data-product-rating>
                             {% if reviews_count %}
-                                <span id="productAverageRating">{{ product.average_rating|floatformat:1 }}</span> ★
+                                <span id="productAverageRating">{{ product.average_rating|floatformat:1 }}</span>
+                                <span class="rating-star" aria-hidden="true"></span>
                                 <span id="productReviewsCount">({{ reviews_count }})</span>
                             {% else %}
-                                <span id="productAverageRating">0</span> ★
+                                <span id="productAverageRating">0</span>
+                                <span class="rating-star rating-star--empty" aria-hidden="true"></span>
                                 <span id="productReviewsCount">(0)</span>
                             {% endif %}
                         </div>
@@ -173,36 +175,38 @@
 
                     <section class="product-tab-panel" data-product-panel="reviews" role="tabpanel">
                         <div class="reviews-panel">
-                            <div class="reviews-panel__head">
-                                <div>
-                                    <h2>Отзывы</h2>
-                                    <p class="reviews-panel__meta">
-                                        <span id="reviewsTotalCount">{{ reviews_count }}</span> отзывов
-                                    </p>
+                            <div class="reviews-panel__section reviews-panel__section--list">
+                                <div class="reviews-panel__head">
+                                    <div>
+                                        <h2>Отзывы</h2>
+                                        <p class="reviews-panel__meta">
+                                            <span id="reviewsTotalCount">{{ reviews_count }}</span> отзывов
+                                        </p>
+                                    </div>
                                 </div>
-                            </div>
 
-                            <div class="reviews-list" id="reviewsList">
-                                {% if reviews %}
-                                    {% include "components/review_items.html" with reviews=reviews %}
-                                {% else %}
-                                    <div class="reviews-empty" data-reviews-empty>Пока нет отзывов. Будьте первым.</div>
+                                <div class="reviews-list" id="reviewsList">
+                                    {% if reviews %}
+                                        {% include "components/review_items.html" with reviews=reviews %}
+                                    {% else %}
+                                        <div class="reviews-empty" data-reviews-empty>Пока нет отзывов. Будьте первым.</div>
+                                    {% endif %}
+                                </div>
+
+                                {% if has_more_reviews %}
+                                    <button
+                                        type="button"
+                                        class="reviews-more-btn"
+                                        id="reviewsMoreButton"
+                                        data-url="{% url 'product_reviews_more' product.slug %}"
+                                        data-offset="5"
+                                    >
+                                        Показать ещё
+                                    </button>
                                 {% endif %}
                             </div>
 
-                            {% if has_more_reviews %}
-                                <button
-                                    type="button"
-                                    class="reviews-more-btn"
-                                    id="reviewsMoreButton"
-                                    data-url="{% url 'product_reviews_more' product.slug %}"
-                                    data-offset="5"
-                                >
-                                    Показать ещё
-                                </button>
-                            {% endif %}
-
-                            <div class="review-form-block">
+                            <div class="reviews-panel__section reviews-panel__section--form">
                                 <h3>Оставить отзыв</h3>
 
                                 {% if user.is_authenticated %}
@@ -224,7 +228,7 @@
                                             <div class="review-stars" data-review-stars>
                                                 {% for i in "12345" %}
                                                     <button type="button" class="review-star" data-value="{{ forloop.counter }}" aria-label="{{ forloop.counter }} из 5">
-                                                        ★
+                                                        <span class="review-star__icon" aria-hidden="true"></span>
                                                     </button>
                                                 {% endfor %}
                                             </div>

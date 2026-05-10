@@ -68,7 +68,13 @@ def product_view(request, slug):
         slug=slug
     )
 
-    reviews_qs = product.reviews.filter(is_approved=True).select_related("user").order_by("-created_at")
+    reviews_qs = (
+        product.reviews.filter(is_approved=True)
+        .select_related("user")
+        .prefetch_related("updates")
+        .order_by("-created_at")
+    )
+
     reviews = list(reviews_qs[:5])
     reviews_count = reviews_qs.count()
 

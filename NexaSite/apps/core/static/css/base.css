@@ -24,6 +24,8 @@
     --footer-border: #ddd;
     --footer-text: #222;
     --footer-link: #222;
+
+    --star-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='black' d='M12 2.25l2.93 5.93 6.55.95-4.74 4.62 1.12 6.53L12 17.95 6.14 20.28l1.12-6.53-4.74-4.62 6.55-.95L12 2.25z'/%3E%3C/svg%3E");
 }
 
 [data-theme="dark"] {
@@ -89,4 +91,33 @@ main {
     max-width: 1280px;
     margin: 0 auto;
     padding: 0 20px;
+}
+
+.rating-star,
+.review-star__icon,
+.review-card__star {
+    display: inline-block;
+    width: 1em;
+    height: 1em;
+    background-color: currentColor;
+    -webkit-mask-image: var(--star-mask);
+    mask-image: var(--star-mask);
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-position: center;
+    mask-position: center;
+    -webkit-mask-size: contain;
+    mask-size: contain;
+    flex: 0 0 auto;
+}
+
+.rating-star {
+    color: #f59e0b;
+    width: 0.95em;
+    height: 0.95em;
+    vertical-align: -0.08em;
+}
+
+.rating-star--empty {
+    color: rgba(148, 163, 184, 0.45);
 }

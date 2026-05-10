@@ -80,9 +80,11 @@
                                 <div class="product-bottom">
                                     <div class="product-rating">
                                         {% if product.reviews_total %}
-                                            {{ product.reviews_avg|floatformat:1 }} ★
+                                            <span>{{ product.reviews_avg|floatformat:1 }}</span>
+                                            <span class="rating-star" aria-hidden="true"></span>
                                         {% else %}
-                                            0 ★
+                                            <span>0</span>
+                                            <span class="rating-star rating-star--empty" aria-hidden="true"></span>
                                         {% endif %}
                                     </div>
                                 </div>
