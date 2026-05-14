@@ -553,6 +553,7 @@ html[data-theme="dark"] .main-image img.placeholder {
 }
 
 .review-card__updates-toggle {
+    min-width: 0;
     min-height: 42px;
     padding: 0 14px;
     border-radius: 12px;
@@ -638,10 +639,22 @@ html[data-theme="dark"] .main-image img.placeholder {
 }
 
 .review-card__actions {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 10px;
+    align-items: center;
+    margin-top: 14px;
+}
+
+.review-card__actions-left {
     display: flex;
     flex-wrap: wrap;
     gap: 10px;
-    margin-top: 14px;
+    min-width: 0;
+}
+
+.review-card__actions-right {
+    margin-left: auto;
 }
 
 .review-action-btn {
@@ -653,7 +666,8 @@ html[data-theme="dark"] .main-image img.placeholder {
     color: var(--text);
     font-weight: 600;
     cursor: pointer;
-    transition: background-color .2s ease, border-color .2s ease, transform .2s ease;
+    transition: background-color .2s ease, border-color .2s ease, transform .2s ease, box-shadow .2s ease;
+    white-space: nowrap;
 }
 
 .review-action-btn:hover {
@@ -1010,6 +1024,18 @@ html[data-theme="dark"] .main-image img.placeholder {
 
     .reviews-more-btn,
     .review-submit-btn {
+        width: 100%;
+    }
+
+    .review-card__actions {
+        grid-template-columns: 1fr;
+    }
+
+    .review-card__actions-right {
+        margin-left: 0;
+    }
+
+    .review-card__actions-right .review-action-btn {
         width: 100%;
     }
 }

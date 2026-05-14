@@ -247,6 +247,14 @@ document.addEventListener("DOMContentLoaded", () => {
             updatesToggle.textContent = "Показать дополнения";
             updatesToggle.setAttribute("aria-expanded", "false");
         }
+
+        const editToggle = card.querySelector("[data-review-edit-toggle]");
+        const editPanel = card.querySelector("[data-review-edit-panel]");
+
+        if (editToggle && editPanel && editPanel.hasAttribute("hidden")) {
+            editToggle.textContent = "Дополнить отзыв";
+            editToggle.setAttribute("aria-expanded", "false");
+        }
     };
 
     const initReviewCards = (root = document) => {

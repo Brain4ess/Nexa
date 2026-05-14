@@ -20,88 +20,99 @@
     <h3 class="review-card__title">{{ review.title|default:"Без заголовка" }}</h3>
 
     <div class="review-card__text-wrap">
-    <div class="review-card__text" data-review-text>
-        {{ review.text|linebreaksbr }}
-    </div>
+        <div class="review-card__text" data-review-text>
+            {{ review.text|linebreaksbr }}
+        </div>
 
-    <button type="button" class="review-card__text-toggle" data-review-text-toggle hidden>
+        <button type="button" class="review-card__text-toggle" data-review-text-toggle hidden>
             Развернуть
         </button>
     </div>
 
+    <div class="review-card__actions">
+        <div class="review-card__actions-left">
+            {% if review.updates.all %}
+                <button
+                    type="button"
+                    class="review-action-btn review-action-btn--primary review-card__updates-toggle"
+                    data-review-updates-toggle
+                    aria-expanded="false"
+                >
+                    Показать дополнения
+                </button>
+            {% endif %}
+
+            {% if user.is_authenticated and user.id == review.user_id and review.can_add_update %}
+                <button
+                    type="button"
+                    class="review-action-btn review-action-btn--primary"
+                    data-review-edit-toggle
+                >
+                    Дополнить отзыв
+                </button>
+            {% endif %}
+        </div>
+
+        {% if user.is_authenticated and user.id == review.user_id %}
+            <div class="review-card__actions-right">
+                <form class="review-delete-form" action="{% url 'product_review_delete' review.product.slug review.id %}" method="post">
+                    {% csrf_token %}
+                    <button type="submit" class="review-action-btn review-action-btn--danger">
+                        Удалить
+                    </button>
+                </form>
+            </div>
+        {% endif %}
+    </div>
+
     {% if review.updates.all %}
-        <div class="review-card__updates-wrap">
-            <button
-                type="button"
-                class="review-action-btn review-action-btn--primary review-card__updates-toggle"
-                data-review-updates-toggle
-                aria-expanded="false"
-            >
-                Показать дополнения
-            </button>
+        <div class="review-card__updates is-hidden" data-review-updates>
+            <div class="review-card__updates-title">Дополнения</div>
 
-            <div class="review-card__updates is-hidden" data-review-updates>
-                <div class="review-card__updates-title">Дополнения</div>
-
-                <div class="review-updates-list">
-                    {% for update in review.updates.all %}
-                        <div class="review-update">
-                            <div class="review-update__top">
-                                <time class="review-update__time" data-review-datetime="{{ update.created_at|date:'c' }}"></time>
-                            </div>
-
-                            <div class="review-update__text">
-                                {{ update.text|linebreaksbr }}
-                            </div>
+            <div class="review-updates-list">
+                {% for update in review.updates.all %}
+                    <div class="review-update">
+                        <div class="review-update__top">
+                            <time class="review-update__time" data-review-datetime="{{ update.created_at|date:'c' }}"></time>
                         </div>
-                    {% endfor %}
-                </div>
+
+                        <div class="review-update__text">
+                            {{ update.text|linebreaksbr }}
+                        </div>
+                    </div>
+                {% endfor %}
             </div>
         </div>
     {% endif %}
 
-    {% if user.is_authenticated and user.id == review.user_id %}
-        <div class="review-card__actions">
-            {% if review.can_add_update %}
-                <button type="button" class="review-action-btn review-action-btn--primary" data-review-edit-toggle>
-                    Дополнить отзыв
-                </button>
-            {% endif %}
-
-            <form class="review-delete-form" action="{% url 'product_review_delete' review.product.slug review.id %}" method="post">
+    {% if user.is_authenticated and user.id == review.user_id and review.can_add_update %}
+        <div class="review-edit-panel" data-review-edit-panel hidden>
+            <form class="review-edit-form" action="{% url 'product_review_update' review.product.slug review.id %}" method="post">
                 {% csrf_token %}
-                <button type="submit" class="review-action-btn review-action-btn--danger">
-                    Удалить
-                </button>
+
+                <div class="review-form__field">
+                    <label class="review-form__label" for="reviewUpdateText-{{ review.id }}">Дополнение</label>
+
+                    <textarea
+                        id="reviewUpdateText-{{ review.id }}"
+                        name="text"
+                        maxlength="1000"
+                        rows="4"
+                        placeholder="Добавьте уточнение к отзыву"
+                        required
+                    ></textarea>
+                </div>
+
+                <div class="review-form__actions">
+                    <button type="submit" class="review-submit-btn">
+                        Сохранить дополнение
+                    </button>
+                </div>
             </form>
         </div>
-
-        {% if review.can_add_update %}
-            <div class="review-edit-panel" data-review-edit-panel hidden>
-                <form class="review-edit-form" action="{% url 'product_review_update' review.product.slug review.id %}" method="post">
-                    {% csrf_token %}
-
-                    <div class="review-form__field">
-                        <label class="review-form__label" for="reviewUpdateText-{{ review.id }}">Дополнение</label>
-                        <textarea
-                            id="reviewUpdateText-{{ review.id }}"
-                            name="text"
-                            maxlength="1000"
-                            rows="4"
-                            placeholder="Добавьте уточнение к отзыву"
-                            required
-                        ></textarea>
-                    </div>
-
-                    <div class="review-form__actions">
-                        <button type="submit" class="review-submit-btn">Сохранить дополнение</button>
-                    </div>
-                </form>
-            </div>
-        {% else %}
-            <div class="review-card__limit-note">
-                Дополнения временно недоступны.
-            </div>
-        {% endif %}
+    {% elif user.is_authenticated and user.id == review.user_id %}
+        <div class="review-card__limit-note">
+            Дополнения временно недоступны.
+        </div>
     {% endif %}
 </article>
