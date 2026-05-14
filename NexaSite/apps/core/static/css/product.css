@@ -511,6 +511,13 @@ html[data-theme="dark"] .main-image img.placeholder {
     color: var(--text);
 }
 
+.review-card__text-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 10px;
+}
+
 .review-card__text {
     margin: 0;
     color: var(--text);
@@ -522,18 +529,39 @@ html[data-theme="dark"] .main-image img.placeholder {
 .review-card__text.is-collapsed {
     display: -webkit-box;
     -webkit-box-orient: vertical;
-    -webkit-line-clamp: 5;
+    -webkit-line-clamp: 4;
     overflow: hidden;
 }
 
 .review-card__text-toggle {
-    margin-top: 10px;
+    align-self: flex-start;
     padding: 0;
     border: none;
     background: transparent;
     color: var(--accent);
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.review-card__updates-wrap {
+    margin-top: 14px;
+}
+
+.review-card__updates.is-hidden {
+    display: none;
+}
+
+.review-card__updates-toggle {
+    min-height: 42px;
+    padding: 0 14px;
+    border-radius: 12px;
+    border: 1px solid var(--card-border);
+    background: var(--card-bg);
+    color: var(--text);
     font-weight: 600;
     cursor: pointer;
+    transition: background-color .2s ease, border-color .2s ease, transform .2s ease;
 }
 
 .review-card__text-toggle:hover {
@@ -541,7 +569,7 @@ html[data-theme="dark"] .main-image img.placeholder {
 }
 
 .review-card__updates {
-    margin-top: 16px;
+    margin-top: 12px;
     padding-top: 16px;
     border-top: 1px solid var(--card-border);
     display: flex;

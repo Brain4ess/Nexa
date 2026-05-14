@@ -19,32 +19,43 @@
 
     <h3 class="review-card__title">{{ review.title|default:"Без заголовка" }}</h3>
 
-    <div class="review-card__text {% if review.text|length > 260 %}is-collapsed{% endif %}" data-review-text>
+    <div class="review-card__text-wrap">
+    <div class="review-card__text" data-review-text>
         {{ review.text|linebreaksbr }}
     </div>
 
-    {% if review.text|length > 260 %}
-        <button type="button" class="review-card__text-toggle" data-review-text-toggle>
+    <button type="button" class="review-card__text-toggle" data-review-text-toggle hidden>
             Развернуть
         </button>
-    {% endif %}
+    </div>
 
     {% if review.updates.all %}
-        <div class="review-card__updates">
-            <div class="review-card__updates-title">Дополнения</div>
+        <div class="review-card__updates-wrap">
+            <button
+                type="button"
+                class="review-action-btn review-action-btn--primary review-card__updates-toggle"
+                data-review-updates-toggle
+                aria-expanded="false"
+            >
+                Показать дополнения
+            </button>
 
-            <div class="review-updates-list">
-                {% for update in review.updates.all %}
-                    <div class="review-update">
-                        <div class="review-update__top">
-                            <time class="review-update__time" data-review-datetime="{{ update.created_at|date:'c' }}"></time>
-                        </div>
+            <div class="review-card__updates is-hidden" data-review-updates>
+                <div class="review-card__updates-title">Дополнения</div>
 
-                        <div class="review-update__text">
-                            {{ update.text|linebreaksbr }}
+                <div class="review-updates-list">
+                    {% for update in review.updates.all %}
+                        <div class="review-update">
+                            <div class="review-update__top">
+                                <time class="review-update__time" data-review-datetime="{{ update.created_at|date:'c' }}"></time>
+                            </div>
+
+                            <div class="review-update__text">
+                                {{ update.text|linebreaksbr }}
+                            </div>
                         </div>
-                    </div>
-                {% endfor %}
+                    {% endfor %}
+                </div>
             </div>
         </div>
     {% endif %}

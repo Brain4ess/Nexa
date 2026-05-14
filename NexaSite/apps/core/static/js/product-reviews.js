@@ -224,13 +224,47 @@ document.addEventListener("DOMContentLoaded", () => {
         `;
     };
 
+    const initReviewCard = (card) => {
+        if (!card) return;
+
+        const text = card.querySelector("[data-review-text]");
+        const textToggle = card.querySelector("[data-review-text-toggle]");
+        const updatesWrap = card.querySelector("[data-review-updates]");
+        const updatesToggle = card.querySelector("[data-review-updates-toggle]");
+
+        if (text && textToggle) {
+            const rawText = (text.textContent || "").trim();
+            const lineCount = rawText ? rawText.split(/\r?\n/).length : 0;
+            const shouldCollapse = rawText.length > 260 || lineCount > 4;
+
+            text.classList.toggle("is-collapsed", shouldCollapse);
+            textToggle.hidden = !shouldCollapse;
+            textToggle.textContent = "Развернуть";
+        }
+
+        if (updatesWrap && updatesToggle) {
+            updatesWrap.classList.add("is-hidden");
+            updatesToggle.textContent = "Показать дополнения";
+            updatesToggle.setAttribute("aria-expanded", "false");
+        }
+    };
+
+    const initReviewCards = (root = document) => {
+        root.querySelectorAll(".review-card").forEach(initReviewCard);
+    };
+
+    initReviewCards();
+
     const replaceReviewCard = (reviewId, html) => {
         const oldCard = document.querySelector(`[data-review-id="${reviewId}"]`);
         if (!oldCard) return;
 
         oldCard.insertAdjacentHTML("beforebegin", html);
+        const newCard = oldCard.previousElementSibling;
         oldCard.remove();
-        decorateReviewTimes(document);
+
+        initReviewCard(newCard);
+        decorateReviewTimes(newCard);
     };
 
     const removeReviewCard = (reviewId) => {
@@ -256,6 +290,20 @@ document.addEventListener("DOMContentLoaded", () => {
 
             const collapsed = text.classList.toggle("is-collapsed");
             textToggle.textContent = collapsed ? "Развернуть" : "Скрыть";
+            return;
+        }
+
+        const updatesToggle = e.target.closest("[data-review-updates-toggle]");
+        if (updatesToggle) {
+            const card = updatesToggle.closest(".review-card");
+            const updates = card?.querySelector("[data-review-updates]");
+            if (!updates) return;
+
+            const isHidden = updates.classList.toggle("is-hidden");
+
+            updatesToggle.textContent = isHidden ? "Показать дополнения" : "Скрыть дополнения";
+            updatesToggle.setAttribute("aria-expanded", String(!isHidden));
+
             return;
         }
 
@@ -433,9 +481,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 if (reviewsList && data.review_html) {
                     reviewsList.insertAdjacentHTML("afterbegin", data.review_html);
+                    initReviewCard(reviewsList.firstElementChild);
+                    decorateReviewTimes(reviewsList.firstElementChild);
                 }
-
-                decorateReviewTimes(reviewsList);
 
                 if (moreButton) {
                     moreButton.dataset.offset = String(reviewsList.querySelectorAll(".review-card").length);
@@ -484,6 +532,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 if (data.html) {
                     reviewsList.insertAdjacentHTML("beforeend", data.html);
+
+                    const newCards = reviewsList.querySelectorAll(".review-card");
+                    const lastCard = newCards[newCards.length - 1];
+                    initReviewCard(lastCard);
                     decorateReviewTimes(reviewsList);
                 }
 
