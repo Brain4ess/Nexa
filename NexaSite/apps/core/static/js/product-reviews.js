@@ -157,6 +157,30 @@ document.addEventListener("DOMContentLoaded", () => {
 
     updateFormCounters();
 
+    const clampLines = (value, maxLines) => {
+        const lines = value.split(/\r?\n/);
+        return lines.length > maxLines ? lines.slice(0, maxLines).join("\n") : value;
+    };
+
+    const clampReviewTextLines = () => {
+        if (!reviewTextInput) return;
+
+        const clamped = clampLines(reviewTextInput.value, 15);
+
+        if (clamped !== reviewTextInput.value) {
+            reviewTextInput.value = clamped;
+        }
+
+        updateFormCounters();
+    };
+
+    if (reviewTextInput) {
+        reviewTextInput.addEventListener("input", clampReviewTextLines);
+        reviewTextInput.addEventListener("paste", () => {
+            setTimeout(clampReviewTextLines, 0);
+        });
+    }
+
     const clampReviewUpdateText = (textarea) => {
         if (!textarea) return;
 

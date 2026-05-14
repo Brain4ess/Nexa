@@ -7,6 +7,10 @@ from django.utils import timezone
 from apps.catalog.models import Product
 from apps.core.mixins import TimestampMixin
 
+def validate_max_15_lines(value):
+    if len(value.splitlines()) > 15:
+        raise ValidationError("Текст отзыва не должен превышать 15 строк")
+
 class Review(TimestampMixin):
     class UsagePeriod(models.TextChoices):
         FEW_DAYS = "few_days", "Несколько суток"
@@ -30,7 +34,7 @@ class Review(TimestampMixin):
         validators=[MinValueValidator(1), MaxValueValidator(5)]
     )
     title = models.CharField(max_length=50, blank=True)
-    text = models.TextField(validators=[MaxLengthValidator(3000)])
+    text = models.TextField(validators=[MaxLengthValidator(3000), validate_max_15_lines])
     usage_period = models.CharField(
         max_length=32,
         choices=UsagePeriod.choices,

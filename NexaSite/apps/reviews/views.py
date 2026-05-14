@@ -97,6 +97,8 @@ def review_create_view(request, slug):
         errors["text"] = "Введите текст отзыва"
     elif len(text) > 3000:
         errors["text"] = "Текст отзыва не должен превышать 3000 символов"
+    elif len(text.splitlines()) > 15:
+        errors["text"] = "Текст отзыва не должен превышать 15 строк"
 
     if usage_period not in dict(Review.UsagePeriod.choices):
         errors["usage_period"] = "Выберите срок использования"
