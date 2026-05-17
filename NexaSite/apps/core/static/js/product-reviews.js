@@ -105,18 +105,24 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     };
 
-    starButtons.forEach((button) => {
-        button.addEventListener("mouseenter", () => {
-            renderStarState(Number(ratingInput?.value || 0), Number(button.dataset.value || 0));
-        });
+    const getHoverValue = (target) => {
+        const star = target?.closest(".review-star");
+        return star ? Number(star.dataset.value || 0) : null;
+    };
 
+    starButtons.forEach((button) => {
         button.addEventListener("click", () => {
             setRating(Number(button.dataset.value || 0));
         });
     });
 
     if (starsWrapper) {
-        starsWrapper.addEventListener("mouseleave", () => {
+        starsWrapper.addEventListener("pointermove", (e) => {
+            const hoverValue = getHoverValue(e.target);
+            renderStarState(Number(ratingInput?.value || 0), hoverValue);
+        });
+
+        starsWrapper.addEventListener("pointerleave", () => {
             renderStarState(Number(ratingInput?.value || 0), null);
         });
     }
