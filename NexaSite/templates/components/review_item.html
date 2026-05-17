@@ -92,7 +92,6 @@
 
                 <div class="review-form__field">
                     <label class="review-form__label" for="reviewUpdateText-{{ review.id }}">Дополнение</label>
-
                     <textarea
                         id="reviewUpdateText-{{ review.id }}"
                         name="text"
@@ -100,7 +99,11 @@
                         rows="4"
                         placeholder="Добавьте уточнение к отзыву"
                         required
+                        data-review-update-text
                     ></textarea>
+                    <div class="review-form__meta">
+                        <span data-review-update-counter>0/1000</span>
+                    </div>
                 </div>
 
                 <div class="review-form__actions">

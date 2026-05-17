@@ -255,6 +255,28 @@ document.addEventListener("DOMContentLoaded", () => {
             editToggle.textContent = "Дополнить отзыв";
             editToggle.setAttribute("aria-expanded", "false");
         }
+
+        const updateTextarea = card.querySelector("[data-review-update-text]");
+        const updateCounter = card.querySelector("[data-review-update-counter]");
+
+        const syncUpdateCounter = () => {
+            if (!updateTextarea || !updateCounter) return;
+            updateCounter.textContent = `${updateTextarea.value.length}/1000`;
+        };
+
+        const clampAndSyncUpdate = () => {
+            if (!updateTextarea) return;
+            clampReviewUpdateText(updateTextarea);
+            syncUpdateCounter();
+        };
+
+        if (updateTextarea && updateCounter) {
+            updateTextarea.addEventListener("input", clampAndSyncUpdate);
+            updateTextarea.addEventListener("paste", () => {
+                setTimeout(clampAndSyncUpdate, 0);
+            });
+            syncUpdateCounter();
+        }
     };
 
     const initReviewCards = (root = document) => {
