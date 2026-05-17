@@ -246,6 +246,7 @@ document.addEventListener("DOMContentLoaded", () => {
             text.classList.toggle("is-collapsed", shouldCollapse);
             textToggle.hidden = !shouldCollapse;
             textToggle.textContent = "Развернуть";
+            textToggle.setAttribute("aria-expanded", "false");
         }
 
         if (updatesWrap && updatesToggle) {
@@ -326,6 +327,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
             const collapsed = text.classList.toggle("is-collapsed");
             textToggle.textContent = collapsed ? "Развернуть" : "Скрыть";
+            textToggle.setAttribute("aria-expanded", String(!collapsed));
             return;
         }
 

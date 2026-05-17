@@ -23,10 +23,6 @@
         <div class="review-card__text" data-review-text>
             {{ review.text|linebreaksbr }}
         </div>
-
-        <button type="button" class="review-card__text-toggle" data-review-text-toggle hidden>
-            Развернуть
-        </button>
     </div>
 
     <div class="review-card__actions">
@@ -51,6 +47,17 @@
                     Дополнить отзыв
                 </button>
             {% endif %}
+        </div>
+
+        <div class="review-card__actions-center">
+            <button
+                type="button"
+                class="review-card__text-toggle"
+                data-review-text-toggle
+                hidden
+            >
+                Развернуть
+            </button>
         </div>
 
         {% if user.is_authenticated and user.id == review.user_id %}
@@ -92,6 +99,7 @@
 
                 <div class="review-form__field">
                     <label class="review-form__label" for="reviewUpdateText-{{ review.id }}">Дополнение</label>
+
                     <textarea
                         id="reviewUpdateText-{{ review.id }}"
                         name="text"
@@ -101,6 +109,7 @@
                         required
                         data-review-update-text
                     ></textarea>
+
                     <div class="review-form__meta">
                         <span data-review-update-counter>0/1000</span>
                     </div>
