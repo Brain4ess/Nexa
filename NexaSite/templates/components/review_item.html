@@ -78,17 +78,28 @@
 
             <div class="review-updates-list">
                 {% for update in review.updates.all %}
-                    <div class="review-update">
-                        <div class="review-update__top">
-                            <time class="review-update__time" data-review-datetime="{{ update.created_at|date:'c' }}"></time>
-                        </div>
-
-                        <div class="review-update__text">
-                            {{ update.text|linebreaksbr }}
-                        </div>
+                <div class="review-update">
+                    <div class="review-update__top">
+                        <time class="review-update__time" data-review-datetime="{{ update.created_at|date:'c' }}"></time>
                     </div>
+                    
+                    <div class="review-update__text">
+                        {{ update.text|linebreaksbr }}
+                    </div>
+                </div>
                 {% endfor %}
             </div>
+
+            {% if user.is_authenticated and user.id == review.user_id and not review.can_add_update %}
+                <div class="review-card__update-status">
+                    {% if review.updates_count >= 5 %}
+                        Лимит дополнений исчерпан
+                    {% else %}
+                        Вы сможете дополнить отзыв после
+                        <time data-review-datetime="{{ review.next_update_available_at|date:'c' }}"></time>
+                    {% endif %}
+                </div>
+            {% endif %}
         </div>
     {% endif %}
 
@@ -121,10 +132,6 @@
                     </button>
                 </div>
             </form>
-        </div>
-    {% elif user.is_authenticated and user.id == review.user_id %}
-        <div class="review-card__limit-note">
-            Дополнения временно недоступны.
         </div>
     {% endif %}
 </article>

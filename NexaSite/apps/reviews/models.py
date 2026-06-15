@@ -67,6 +67,17 @@ class Review(TimestampMixin):
             return True
 
         return timezone.now() - last_update.created_at >= timedelta(days=3)
+    
+    @property
+    def next_update_available_at(self):
+        if self.updates_count >= 5:
+            return None
+
+        last_update = self.updates.order_by("-created_at").first()
+        if not last_update:
+            return None
+
+        return last_update.created_at + timedelta(days=3)
 
 def validate_max_10_lines(value):
     if len(value.splitlines()) > 10:

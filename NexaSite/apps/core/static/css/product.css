@@ -587,6 +587,17 @@ html[data-theme="dark"] .main-image img.placeholder {
     color: var(--text);
 }
 
+.review-card__update-status {
+    padding: 12px 14px;
+    margin-bottom: 12px;
+    border: 1px dashed var(--card-border);
+    border-radius: 12px;
+    background: rgba(148, 163, 184, 0.04);
+    color: var(--muted);
+    font-size: 14px;
+    line-height: 1.5;
+}
+
 .review-update {
     padding: 12px 14px;
     border: 1px solid var(--card-border);
@@ -689,6 +700,23 @@ html[data-theme="dark"] .main-image img.placeholder {
 .review-action-btn--danger {
     border-color: rgba(220, 38, 38, 0.24);
     color: #dc2626;
+}
+
+.review-action-btn--disabled {
+    border-style: dashed;
+    color: var(--muted);
+    cursor: not-allowed;
+    transform: none;
+}
+
+.review-action-btn--disabled:hover {
+    background: var(--card-bg);
+    transform: none;
+    box-shadow: none;
+}
+
+.review-action-btn:disabled {
+    opacity: 1;
 }
 
 .review-edit-form {
