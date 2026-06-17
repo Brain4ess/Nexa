@@ -18,10 +18,10 @@
             <div class="form-error">{{ error }}</div>
         {% endif %}
 
-        <input type="text" name="username" placeholder="Имя пользователя" value="{{ username|default:'' }}" required>
-        <input type="email" name="email" placeholder="Email" value="{{ email|default:'' }}" required>
-        <input type="password" name="password" placeholder="Пароль" required>
-        <input type="password" name="password2" placeholder="Повторите пароль" required>
+        <input type="text" name="username" placeholder="Имя пользователя" value="{{ username|default:'' }}" minlength="3" maxlength="30" required>
+        <input type="email" name="email" placeholder="Email" value="{{ email|default:'' }}" maxlength="128" required>
+        <input type="password" name="password" placeholder="Пароль" minlength="8" maxlength="128" required>
+        <input type="password" name="password2" placeholder="Повторите пароль" minlength="8" maxlength="128" required>
 
         <button type="submit" class="cta">Создать аккаунт</button>
 

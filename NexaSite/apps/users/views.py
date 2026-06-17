@@ -5,6 +5,10 @@ from apps.cart.services import CartService
 
 User = get_user_model()
 
+USERNAME_MAX_LENGTH = 30
+EMAIL_MAX_LENGTH = 128
+PASSWORD_MAX_LENGTH = 128
+
 def login_view(request):
     if request.method == "POST":
         username = request.POST.get("username")
@@ -24,10 +28,10 @@ def login_view(request):
 
 def register_view(request):
     if request.method == "POST":
-        username = request.POST.get("username")
-        email = request.POST.get("email")
-        password = request.POST.get("password")
-        password2 = request.POST.get("password2")
+        username = (request.POST.get("username") or "").strip()
+        email = (request.POST.get("email") or "").strip()
+        password = request.POST.get("password") or ""
+        password2 = request.POST.get("password2") or ""
 
         context = {
             "username": username,
@@ -38,8 +42,20 @@ def register_view(request):
             context["error"] = "Имя пользователя должно быть не менее 3 символов"
             return render(request, "pages/register.html", context)
 
+        if len(username) > USERNAME_MAX_LENGTH:
+            context["error"] = f"Имя пользователя не должно превышать {USERNAME_MAX_LENGTH} символов"
+            return render(request, "pages/register.html", context)
+
         if " " in username:
             context["error"] = "Имя пользователя не должно содержать пробелы"
+            return render(request, "pages/register.html", context)
+
+        if not email:
+            context["error"] = "Введите почту"
+            return render(request, "pages/register.html", context)
+
+        if len(email) > EMAIL_MAX_LENGTH:
+            context["error"] = f"Почта не должна превышать {EMAIL_MAX_LENGTH} символов"
             return render(request, "pages/register.html", context)
 
         if User.objects.filter(username=username).exists():
@@ -56,6 +72,10 @@ def register_view(request):
 
         if len(password) < 8:
             context["error"] = "Пароль должен быть не менее 8 символов"
+            return render(request, "pages/register.html", context)
+
+        if len(password) > PASSWORD_MAX_LENGTH:
+            context["error"] = f"Пароль не должен превышать {PASSWORD_MAX_LENGTH} символов"
             return render(request, "pages/register.html", context)
 
         user = User.objects.create_user(
