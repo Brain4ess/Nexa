@@ -8,34 +8,58 @@ User = get_user_model()
 USERNAME_MAX_LENGTH = 30
 EMAIL_MAX_LENGTH = 128
 PASSWORD_MAX_LENGTH = 128
+LOGIN_IDENTIFIER_MAX_LENGTH = 128
+
+def _clean(value):
+    return (value or "").strip()
 
 def login_view(request):
     if request.method == "POST":
-        username = request.POST.get("username")
-        password = request.POST.get("password")
+        identifier = _clean(request.POST.get("identifier"))
+        password = request.POST.get("password") or ""
 
-        user = authenticate(request, username=username, password=password)
+        context = {
+            "identifier": identifier,
+        }
+
+        if not identifier:
+            context["error"] = "Введите почту или имя пользователя"
+            return render(request, "pages/login.html", context)
+
+        if len(identifier) > LOGIN_IDENTIFIER_MAX_LENGTH:
+            context["error"] = f"Имя пользователя не должно превышать {LOGIN_IDENTIFIER_MAX_LENGTH} символов"
+            return render(request, "pages/login.html", context)
+
+        user = None
+
+        if "@" not in identifier:
+            user_obj = User.objects.filter(username__iexact=identifier).first()
+            if user_obj:
+                user = authenticate(request, username=user_obj.email, password=password)
+
+        if user is None:
+            user = authenticate(request, username=identifier, password=password)
 
         if user is not None:
             CartService.merge_guest_cart_to_user(request, user)
             login(request, user)
             return redirect("/")
-        else:
-            messages.error(request, "Неверный логин или пароль")
-            return redirect("login")
+
+        context["error"] = "Неверное имя пользователя или пароль"
+        return render(request, "pages/login.html", context)
 
     return render(request, "pages/login.html")
 
 def register_view(request):
     if request.method == "POST":
-        username = (request.POST.get("username") or "").strip()
-        email = (request.POST.get("email") or "").strip()
+        username = _clean(request.POST.get("username"))
+        email = _clean(request.POST.get("email"))
         password = request.POST.get("password") or ""
         password2 = request.POST.get("password2") or ""
 
         context = {
             "username": username,
-            "email": email
+            "email": email,
         }
 
         if not username or len(username) < 3:
@@ -58,11 +82,11 @@ def register_view(request):
             context["error"] = f"Почта не должна превышать {EMAIL_MAX_LENGTH} символов"
             return render(request, "pages/register.html", context)
 
-        if User.objects.filter(username=username).exists():
+        if User.objects.filter(username__iexact=username).exists():
             context["error"] = "Имя пользователя уже занято"
             return render(request, "pages/register.html", context)
 
-        if User.objects.filter(email=email).exists():
+        if User.objects.filter(email__iexact=email).exists():
             context["error"] = "Почта уже используется"
             return render(request, "pages/register.html", context)
 
@@ -108,9 +132,11 @@ def account_view(request):
             if not request.user.check_password(current_password):
                 messages.error(request, "Неверный текущий пароль")
                 return redirect("account")
+
             if new_password1 != new_password2:
                 messages.error(request, "Новые пароли не совпадают")
                 return redirect("account")
+
             if len(new_password1) < 8:
                 messages.error(request, "Пароль должен быть не менее 8 символов")
                 return redirect("account")
@@ -129,9 +155,11 @@ def account_view(request):
             if new_email != confirm_email:
                 messages.error(request, "Почты не совпадают")
                 return redirect("account")
+
             if new_email == current_email:
                 messages.error(request, "Это уже ваша текущая почта")
                 return redirect("account")
+
             if User.objects.filter(email=new_email).exists():
                 messages.error(request, "Эта почта уже используется")
                 return redirect("account")
