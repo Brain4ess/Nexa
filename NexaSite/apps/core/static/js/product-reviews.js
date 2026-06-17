@@ -239,7 +239,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const updatesToggle = card.querySelector("[data-review-updates-toggle]");
 
         if (text && textToggle) {
-            const rawText = (text.textContent || "").trim();
+            const rawText = (text.innerText || "").trim();
             const lineCount = rawText ? rawText.split(/\r?\n/).length : 0;
             const shouldCollapse = rawText.length > 260 || lineCount > 4;
 
