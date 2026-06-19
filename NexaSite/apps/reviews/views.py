@@ -8,17 +8,10 @@ from django.utils import timezone
 from django.views.decorators.http import require_GET, require_POST
 from apps.catalog.models import Product
 from .models import Review, ReviewUpdate
+from .selectors import approved_reviews_qs
 
 def _is_ajax(request):
     return request.headers.get("x-requested-with") == "XMLHttpRequest"
-
-def _approved_reviews_qs(product):
-    return (
-        product.reviews.filter(is_approved=True)
-        .select_related("user")
-        .prefetch_related("updates")
-        .order_by("-created_at")
-    )
 
 def _render_review_card(request, review):
     review = (
@@ -42,7 +35,7 @@ def reviews_more_view(request, slug):
         offset = 0
 
     limit = 5
-    reviews_qs = _approved_reviews_qs(product)
+    reviews_qs = approved_reviews_qs(product, user=request.user)
     total = reviews_qs.count()
     reviews = list(reviews_qs[offset:offset + limit])
 
@@ -129,7 +122,7 @@ def review_create_view(request, slug):
             "ok": True,
             "review_html": review_html,
             "average_rating": f"{product.average_rating:.1f}",
-            "reviews_count": _approved_reviews_qs(product).count(),
+            "reviews_count": approved_reviews_qs(product).count(),
         })
 
     messages.success(request, "Отзыв опубликован")
@@ -192,7 +185,7 @@ def review_delete_view(request, slug, review_id):
     review.delete()
 
     if _is_ajax(request):
-        reviews_count = _approved_reviews_qs(product).count()
+        reviews_count = approved_reviews_qs(product).count()
         return JsonResponse({
             "ok": True,
             "average_rating": f"{product.average_rating:.1f}",

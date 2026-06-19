@@ -4,6 +4,7 @@ from django.db.models import Avg, Count, Q
 from apps.categories.models import Category
 from apps.catalog.models import Product
 from apps.reviews.models import Review
+from apps.reviews.selectors import approved_reviews_qs
 
 def get_page_numbers(paginator, current_page_number, window_size=3):
     total_pages = paginator.num_pages
@@ -68,12 +69,7 @@ def product_view(request, slug):
         slug=slug
     )
 
-    reviews_qs = (
-        product.reviews.filter(is_approved=True)
-        .select_related("user")
-        .prefetch_related("updates")
-        .order_by("-created_at")
-    )
+    reviews_qs = approved_reviews_qs(product, user=request.user)
 
     reviews = list(reviews_qs[:5])
     reviews_count = reviews_qs.count()
