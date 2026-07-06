@@ -1,8 +1,7 @@
 const THEME_KEY = "theme";
 
-const icon = document.getElementById("themeIcon");
-
 function updateIcon(theme) {
+    const icon = document.getElementById("themeIcon");
     if (!icon) return;
 
     if (theme === "dark") {
@@ -15,6 +14,7 @@ function updateIcon(theme) {
 function setTheme(theme) {
     document.documentElement.setAttribute("data-theme", theme);
     localStorage.setItem(THEME_KEY, theme);
+    updateIcon(theme);
 }
 
 function toggleTheme() {
@@ -22,11 +22,5 @@ function toggleTheme() {
     const newTheme = current === "dark" ? "light" : "dark";
     setTheme(newTheme);
 }
-
-(function () {
-    const savedTheme = localStorage.getItem(THEME_KEY) || "light";
-    document.documentElement.setAttribute("data-theme", savedTheme);
-    updateIcon(savedTheme);
-})();
 
 document.getElementById("themeToggle")?.addEventListener("click", toggleTheme);

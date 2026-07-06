@@ -22,6 +22,13 @@
         <div class="header-actions">
             <button class="theme-toggle" id="themeToggle">
                 <img id="themeIcon" src="{% static 'images/white_theme_icon.png' %}" alt="theme">
+                <script>
+                    (function(){
+                        if (document.documentElement.getAttribute("data-theme") === "dark") {
+                            document.getElementById("themeIcon").src = "{% static 'images/dark_theme_icon.png' %}";
+                        }
+                    })();
+                </script>
             </button>
 
             <a href="/cart/" class="cart">
@@ -78,66 +85,5 @@
         </ul>
     </nav>
 </header>
-
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const darkIcon = "{% static 'images/dark_theme_icon.png' %}";
-        const lightIcon = "{% static 'images/white_theme_icon.png' %}";
-        
-        const themeToggle = document.getElementById("themeToggle");
-        const themeIcon = document.getElementById("themeIcon");
-
-        function syncIcon() {
-            const isDark = document.documentElement.classList.contains("dark-theme");
-            
-            if (isDark) {
-                themeIcon.src = darkIcon;
-            } else {
-                themeIcon.src = lightIcon;
-            }
-        }
-
-        function setTheme(theme) {
-            if (theme === "dark") {
-                document.documentElement.classList.add("dark-theme");
-                document.documentElement.classList.remove("light-theme");
-                localStorage.setItem("theme", "dark");
-            } else {
-                document.documentElement.classList.add("light-theme");
-                document.documentElement.classList.remove("dark-theme");
-                localStorage.setItem("theme", "light");
-            }
-            syncIcon();
-        }
-
-        function toggleTheme() {
-            const isDark = document.documentElement.classList.contains("dark-theme");
-            
-            if (isDark) {
-                setTheme("light");
-            } else {
-                setTheme("dark");
-            }
-        }
-
-        function loadTheme() {
-            const savedTheme = localStorage.getItem("theme");
-            
-            if (savedTheme === "dark") {
-                setTheme("dark");
-            } else if (savedTheme === "light") {
-                setTheme("light");
-            } else {
-                setTheme("light");
-            }
-        }
-        
-        loadTheme();
-
-        if (themeToggle) {
-            themeToggle.addEventListener("click", toggleTheme);
-        }
-    });
-</script>
 
 <script src="{% static 'js/user-menu.js' %}" defer></script>
