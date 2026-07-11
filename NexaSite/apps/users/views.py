@@ -1,6 +1,9 @@
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout, get_user_model, update_session_auth_hash
+from django.contrib.auth.password_validation import validate_password
+from django.core.exceptions import ValidationError
+from django_ratelimit.decorators import ratelimit
 from apps.cart.services import CartService
 
 User = get_user_model()
@@ -13,8 +16,15 @@ LOGIN_IDENTIFIER_MAX_LENGTH = 128
 def _clean(value):
     return (value or "").strip()
 
+@ratelimit(key='ip', rate='5/m', method='POST', block=False)
 def login_view(request):
     if request.method == "POST":
+        if getattr(request, 'limited', False):
+            return render(request, "pages/login.html", {
+                "identifier": request.POST.get("identifier", ""),
+                "error": "Слишком много попыток входа. Попробуйте через минуту.",
+            })
+
         identifier = _clean(request.POST.get("identifier"))
         password = request.POST.get("password") or ""
 
@@ -50,8 +60,14 @@ def login_view(request):
 
     return render(request, "pages/login.html")
 
+@ratelimit(key='ip', rate='3/m', method='POST', block=False)
 def register_view(request):
     if request.method == "POST":
+        if getattr(request, 'limited', False):
+            return render(request, "pages/register.html", {
+                "error": "Слишком много попыток регистрации. Попробуйте через минуту.",
+            })
+
         username = _clean(request.POST.get("username"))
         email = _clean(request.POST.get("email"))
         password = request.POST.get("password") or ""
@@ -118,10 +134,15 @@ def logout_view(request):
     logout(request)
     return redirect("/")
 
+@ratelimit(key='user', rate='10/m', method='POST', block=False)
 def account_view(request):
     if not request.user.is_authenticated:
         return redirect("login")
     if request.method == "POST":
+        if getattr(request, 'limited', False):
+            messages.error(request, "Слишком много запросов. Попробуйте через минуту.")
+            return redirect("account")
+
         action = request.POST.get("action")
 
         if action == "change_password":
@@ -137,8 +158,11 @@ def account_view(request):
                 messages.error(request, "Новые пароли не совпадают")
                 return redirect("account")
 
-            if len(new_password1) < 8:
-                messages.error(request, "Пароль должен быть не менее 8 символов")
+            try:
+                validate_password(new_password1, user=request.user)
+            except ValidationError as e:
+                for err in e.messages:
+                    messages.error(request, err)
                 return redirect("account")
 
             request.user.set_password(new_password1)
@@ -148,15 +172,19 @@ def account_view(request):
             return redirect("account")
 
         if action == "change_email":
-            current_email = request.user.email
+            current_email_from_post = request.POST.get("current_email")
             new_email = request.POST.get("new_email")
             confirm_email = request.POST.get("confirm_email")
+
+            if current_email_from_post != request.user.email:
+                messages.error(request, "Неверная текущая почта")
+                return redirect("account")
 
             if new_email != confirm_email:
                 messages.error(request, "Почты не совпадают")
                 return redirect("account")
 
-            if new_email == current_email:
+            if new_email == request.user.email:
                 messages.error(request, "Это уже ваша текущая почта")
                 return redirect("account")
 

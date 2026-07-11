@@ -29,7 +29,6 @@ urlpatterns = [
     path("reviews/", include("apps.reviews.urls")),
     path("", include("apps.users.urls")),
     path("cart/", include("apps.cart.urls")),
-    path("account", index, name='account'),
     path("about", about, name='about'),
 ]
 
