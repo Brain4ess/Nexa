@@ -58,18 +58,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     };
 
-    const showCartPopup = () => {
-        const popup = document.getElementById("cart-popup");
-        if (!popup) return;
-
-        popup.classList.add("show");
-        clearTimeout(popup.hideTimeout);
-
-        popup.hideTimeout = setTimeout(() => {
-            popup.classList.remove("show");
-        }, 2500);
-    };
-
     const sendCartRequest = async (url, formData) => {
         const response = await fetch(url, {
             method: "POST",
@@ -199,7 +187,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 if (!data.ok) {
                     if (data.error === "Not enough stock" || data.error === "Недостаточно товара") {
-                        showNotEnoughStockPopup();
+                        Toast.show("error", "Недостаточно товара");
                         return;
                     }
 
@@ -208,7 +196,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
 
                 refreshCartUI(data);
-                showCartPopup();
+                Toast.show("success", "Товар добавлен в корзину", { link: "/cart/", linkText: "Перейти" });
 
                 if (button) {
                     button.classList.add("added");
@@ -345,16 +333,4 @@ document.addEventListener("DOMContentLoaded", () => {
             openConfirmModal(row, form);
         });
     });
-
-    const showNotEnoughStockPopup = () => {
-        const popup = document.getElementById("not-enough-stock-popup");
-        if (!popup) return;
-
-        popup.classList.add("show");
-        clearTimeout(popup.hideTimeout);
-
-        popup.hideTimeout = setTimeout(() => {
-            popup.classList.remove("show");
-        }, 2500);
-    };
 });

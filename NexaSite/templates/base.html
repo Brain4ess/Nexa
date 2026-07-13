@@ -16,8 +16,7 @@
     <link rel="stylesheet" href="{% static 'css/layout/header.css' %}">
     <link rel="stylesheet" href="{% static 'css/layout/footer.css' %}">
     <link rel="stylesheet" href="{% static 'css/base.css' %}">
-    <link rel="stylesheet" href="{% static 'css/components/cart-popup.css' %}">
-    <link rel="stylesheet" href="{% static 'css/components/not-enough-stock-popup.css' %}">
+    <link rel="stylesheet" href="{% static 'css/components/toast.css' %}">
     
     {% block extra_css %}{% endblock %}
     
@@ -33,19 +32,9 @@
     
     {% include "components/footer.html" %}
 
-    <div id="cart-popup" class="cart-popup">
-        <div class="cart-popup-content">
-            <span class="cart-popup-text">Товар добавлен в корзину</span>
-            <a href="/cart/" class="cart-popup-link">Перейти</a>
-        </div>
-    </div>
+    <div id="toast-container" class="toast-container"></div>
 
-    <div id="not-enough-stock-popup" class="not-enough-stock-popup">
-        <div class="not-enough-stock-popup-content">
-            <span class="not-enough-stock-popup-text">Недостаточно товара</span>
-        </div>
-    </div>
-
+    <script src="{% static 'js/notifications.js' %}" defer></script>
     <script src="{% static 'js/cart.js' %}" defer></script>
 </body>
 
