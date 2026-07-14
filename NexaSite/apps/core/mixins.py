@@ -15,7 +15,15 @@ class SlugMixin(models.Model):
         abstract = True
 
     def save(self, *args, **kwargs):
-        if not self.slug:
-            if hasattr(self, "name"):
-                self.slug = slugify(self.name)
+        if not self.slug and hasattr(self, "name"):
+            self.slug = slugify(self.name)
+        if self.slug:
+            model_class = self.__class__
+            base_slug = self.slug
+            slug = base_slug
+            counter = 1
+            while model_class.objects.filter(slug=slug).exclude(pk=self.pk).exists():
+                slug = f"{base_slug}-{counter}"
+                counter += 1
+            self.slug = slug
         super().save(*args, **kwargs)

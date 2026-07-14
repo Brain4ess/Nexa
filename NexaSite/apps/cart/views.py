@@ -18,7 +18,10 @@ def cart_add_view(request):
         return redirect("cart")
 
     product_id = request.POST.get("product_id")
-    quantity = int(request.POST.get("quantity", 1))
+    try:
+        quantity = int(request.POST.get("quantity", 1))
+    except ValueError:
+        quantity = 1
 
     product = get_object_or_404(Product, id=product_id, is_active=True)
 
@@ -45,7 +48,10 @@ def cart_update_view(request):
         return redirect("cart")
 
     product_id = request.POST.get("product_id")
-    quantity = int(request.POST.get("quantity", 1))
+    try:
+        quantity = int(request.POST.get("quantity", 1))
+    except ValueError:
+        quantity = 1
 
     product = get_object_or_404(Product, id=product_id, is_active=True)
 

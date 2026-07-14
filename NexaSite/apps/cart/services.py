@@ -1,12 +1,20 @@
+import logging
+
 from django.db import transaction
 from apps.cart.models import Cart, CartItem
+
+logger = logging.getLogger(__name__)
 
 class CartService:
     @staticmethod
     def get_cart(request):
         if request.user.is_authenticated:
-            if request.session.session_key:
-                CartService.merge_guest_cart_to_user(request, request.user)
+            if request.session.session_key and not request.session.get("cart_merged"):
+                try:
+                    CartService.merge_guest_cart_to_user(request, request.user)
+                    request.session["cart_merged"] = True
+                except Exception:
+                    logger.exception("Failed to merge guest cart for user %s", request.user)
 
             cart, _ = Cart.objects.get_or_create(user=request.user)
             return cart

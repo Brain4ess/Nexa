@@ -15,7 +15,7 @@ def catalog(request, slug=None):
         products = Product.objects.filter(
             category=category,
             is_active=True
-        ).select_related("brand", "category").prefetch_related("images")
+        ).select_related("category").prefetch_related("images")
 
         return render(request, "pages/catalog.html", {
             "category": category,

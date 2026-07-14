@@ -140,8 +140,14 @@ def review_update_view(request, slug, review_id):
 
     if not text:
         errors["text"] = "Введите текст дополнения"
-    elif len(text) > 3000:
-        errors["text"] = "Текст дополнения не должен превышать 3000 символов"
+    if len(text.splitlines()) > 10:
+        errors["text"] = "Текст не должен превышать 10 строк"
+    if len(text) > 1000:
+        msg = "Текст дополнения не должен превышать 1000 символов"
+        if "text" in errors:
+            errors["text"] += ". " + msg
+        else:
+            errors["text"] = msg
 
     if review.updates.count() >= 5:
         errors["limit"] = "Достигнут лимит дополнений"

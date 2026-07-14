@@ -118,6 +118,12 @@ def register_view(request):
             context["error"] = f"Пароль не должен превышать {PASSWORD_MAX_LENGTH} символов"
             return render(request, "pages/register.html", context)
 
+        try:
+            validate_password(password)
+        except ValidationError as e:
+            context["error"] = e.messages[0]
+            return render(request, "pages/register.html", context)
+
         user = User.objects.create_user(
             username=username,
             email=email,
