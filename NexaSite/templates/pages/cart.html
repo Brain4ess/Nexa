@@ -32,7 +32,7 @@
                     <div class="cart-items">
                         {% for item in items %}
                             {% with main_image=item.product.images.all|first %}
-                            <article class="cart-item" data-unit-price="{{ item.product.price }}">
+                            <article class="cart-item" data-product-id="{{ item.product.id }}" data-unit-price="{{ item.product.price }}">
                                 <a class="cart-item-image" href="/product/{{ item.product.slug }}/">
                                     <img
                                         src="{% if main_image %}{{ main_image.image.url }}{% else %}{% static 'images/placeholder.png' %}{% endif %}"
