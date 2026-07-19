@@ -153,13 +153,8 @@ document.addEventListener("DOMContentLoaded", () => {
         updateCounter(reviewTextInput, reviewTextCounter, 3000);
     };
 
-    if (reviewTitleInput) {
-        reviewTitleInput.addEventListener("input", updateFormCounters);
-    }
-
-    if (reviewTextInput) {
-        reviewTextInput.addEventListener("input", updateFormCounters);
-    }
+    if (reviewTitleInput) reviewTextInput.addEventListener("input", updateFormCounters);
+    if (reviewTextInput) reviewTextInput.addEventListener("input", updateFormCounters);
 
     updateFormCounters();
 
@@ -268,11 +263,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const syncUpdateCounter = () => {
             if (!updateTextarea || !updateCounter) return;
+
             updateCounter.textContent = `${updateTextarea.value.length}/1000`;
         };
 
         const clampAndSyncUpdate = () => {
             if (!updateTextarea) return;
+
             clampReviewUpdateText(updateTextarea);
             syncUpdateCounter();
         };
@@ -282,6 +279,7 @@ document.addEventListener("DOMContentLoaded", () => {
             updateTextarea.addEventListener("paste", () => {
                 setTimeout(clampAndSyncUpdate, 0);
             });
+
             syncUpdateCounter();
         }
     };
@@ -328,6 +326,7 @@ document.addEventListener("DOMContentLoaded", () => {
             const collapsed = text.classList.toggle("is-collapsed");
             textToggle.textContent = collapsed ? "Развернуть" : "Скрыть";
             textToggle.setAttribute("aria-expanded", String(!collapsed));
+
             return;
         }
 
@@ -462,6 +461,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
             } catch (error) {
                 console.error("Review update error:", error);
+
                 if (errorBox) {
                     errorBox.hidden = false;
                     errorBox.textContent = "Не удалось сохранить дополнение";

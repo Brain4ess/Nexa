@@ -2,7 +2,6 @@
     var maxVisible = 3;
     var queue = [];
     var active = [];
-
     var timeouts = {
         success: 2500,
         error: 3500,
@@ -19,6 +18,7 @@
 
             document.body.appendChild(el);
         }
+
         return el;
     }
 
@@ -39,6 +39,7 @@
             link.className = "toast-link";
             link.href = options.link;
             link.textContent = options.linkText || "Перейти";
+
             el.appendChild(link);
         }
 
@@ -47,17 +48,22 @@
 
     function removeToast(el) {
         if (el.classList.contains("removing")) return;
+
         clearTimeout(el.hideTimeout);
         el.classList.add("removing");
+
         el.addEventListener("transitionend", function handler() {
             el.removeEventListener("transitionend", handler);
+
             if (el.parentNode) {
                 el.parentNode.removeChild(el);
             }
+
             var idx = active.indexOf(el);
             if (idx !== -1) {
                 active.splice(idx, 1);
             }
+
             processQueue();
         });
     }
@@ -67,6 +73,7 @@
             var item = queue.shift();
             var container = getContainer();
             var el = createToastElement(item.type, item.message, item.options);
+
             container.appendChild(el);
             active.push(el);
 

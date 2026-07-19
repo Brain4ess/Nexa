@@ -1,5 +1,4 @@
 document.addEventListener("DOMContentLoaded", () => {
-
     const getCSRFToken = () => {
         const name = "csrftoken";
         const cookies = document.cookie.split(";");
@@ -50,10 +49,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const updateItemTotal = (row, quantity) => {
         if (!row) return;
+
         let unitPrice = row.dataset.unitPrice || "0";
         unitPrice = parseFloat(String(unitPrice).replace(",", "."));
         if (Number.isNaN(unitPrice)) unitPrice = 0;
         const total = unitPrice * Number(quantity || 0);
+
         const totalEl = row.querySelector("[data-cart-item-total]");
         if (totalEl) totalEl.textContent = formatPrice(total);
     };
@@ -61,6 +62,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const renderEmptyCart = () => {
         const page = document.querySelector(".cart-page");
         if (!page) return;
+
         page.innerHTML = `
             <h1 class="title">Корзина</h1>
             <div class="cart-empty">
@@ -72,9 +74,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const restoreGlobals = (state) => {
         if (state.badgeCount !== undefined) updateCartBadge(state.badgeCount);
+
         document.querySelectorAll("[data-cart-items-count]").forEach((el) => {
             el.textContent = state.itemsCountText || "0 шт.";
         });
+
         document.querySelectorAll("[data-cart-total]").forEach((el) => {
             el.textContent = state.cartTotalText || "0 ₽";
         });
@@ -120,6 +124,7 @@ document.addEventListener("DOMContentLoaded", () => {
             updateCartBadge(data.items_count);
             updateCartItemsCount(data.items_count);
         }
+
         if (typeof data.total_price !== "undefined") {
             updateCartTotal(data.total_price);
         }
@@ -136,19 +141,24 @@ document.addEventListener("DOMContentLoaded", () => {
     const openConfirmModal = (row, form = null) => {
         pendingRemoveRow = row;
         pendingRemoveForm = form;
+
         const productInput = form
             ? form.querySelector('input[name="product_id"]')
             : (row ? row.querySelector('input[name="product_id"]') : null);
         pendingRemoveProductId = productInput ? productInput.value : null;
+
         if (!confirmModal) return;
+
         confirmModal.classList.add("is-open");
         document.body.classList.add("cart-lock");
     };
 
     const closeConfirmModal = () => {
         if (!confirmModal) return;
+
         confirmModal.classList.remove("is-open");
         document.body.classList.remove("cart-lock");
+
         pendingRemoveRow = null;
         pendingRemoveForm = null;
         pendingRemoveProductId = null;
@@ -159,9 +169,11 @@ document.addEventListener("DOMContentLoaded", () => {
             if (e.target.matches("[data-modal-close]")) closeConfirmModal();
         });
     }
+
     if (modalCancelButton) {
         modalCancelButton.addEventListener("click", closeConfirmModal);
     }
+
     document.addEventListener("keydown", (e) => {
         if (e.key === "Escape") closeConfirmModal();
     });
@@ -169,11 +181,14 @@ document.addEventListener("DOMContentLoaded", () => {
     document.querySelectorAll(".add-to-cart-form").forEach((form) => {
         form.addEventListener("submit", async (e) => {
             e.preventDefault();
+
             const button = form.querySelector("button");
             if (button && button.disabled) return;
 
             try {
-                if (button) button.classList.add("loading");
+                if (button) {
+                    button.classList.add("loading");
+                }
 
                 const formData = new FormData(form);
                 const { data } = await sendCartRequest(form.action, formData);
@@ -191,6 +206,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 _lastConfirmed.badgeCount = Number(data.items_count);
                 _lastConfirmed.itemsCountText = `${data.items_count} шт.`;
                 _lastConfirmed.cartTotalText = formatPrice(data.total_price);
+
                 Toast.show("success", "Товар добавлен в корзину", { link: "/cart/", linkText: "Перейти" });
 
                 if (button) {
@@ -199,10 +215,13 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
             } catch (error) {
                 if (error.name === "AbortError") return;
+
                 console.error("Cart add error:", error);
                 Toast.show("error", "Ошибка сети");
             } finally {
-                if (button) button.classList.remove("loading");
+                if (button) {
+                    button.classList.remove("loading");
+                }
             }
         });
     });
@@ -220,8 +239,10 @@ document.addEventListener("DOMContentLoaded", () => {
         const clampQuantity = (value) => {
             let num = Number(value);
             if (!Number.isFinite(num) || num < 1) num = 1;
+
             const max = Number(qtyInput.max || 0);
             if (max > 0) num = Math.min(num, max);
+
             return num;
         };
 
@@ -293,10 +314,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 qtyInput.value = quantity;
                 updateItemTotal(row, quantity);
+
                 refreshCartUI(data);
                 _lastConfirmed.badgeCount = Number(data.items_count);
                 _lastConfirmed.itemsCountText = `${data.items_count} шт.`;
                 _lastConfirmed.cartTotalText = formatPrice(data.total_price);
+
                 lastSyncedQuantity = String(quantity);
                 deleteSnapshot(productId);
                 deleteController(productId);
@@ -306,6 +329,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     deleteController(productId);
                     return;
                 }
+
                 rollbackQuantity(productId);
                 Toast.show("error", "Ошибка сети. Изменения не сохранены.");
                 deleteController(productId);
@@ -325,6 +349,7 @@ document.addEventListener("DOMContentLoaded", () => {
             typingTimer = setTimeout(() => {
                 const q = clampQuantity(qtyInput.value);
                 if (String(q) === String(lastSyncedQuantity)) return;
+
                 syncQuantity(q).catch((err) => {
                     if (err.name !== "AbortError") console.error("Cart input sync error:", err);
                 });
@@ -337,6 +362,7 @@ document.addEventListener("DOMContentLoaded", () => {
             const quantity = clampQuantity(qtyInput.value);
             qtyInput.value = quantity;
             if (String(quantity) === String(lastSyncedQuantity)) return;
+
             clearTimeout(typingTimer);
             syncQuantity(quantity).catch((err) => {
                 if (err.name !== "AbortError") console.error("Cart blur sync error:", err);
@@ -368,9 +394,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
         form.addEventListener("submit", (e) => {
             e.preventDefault();
+
             const quantity = clampQuantity(qtyInput.value);
             qtyInput.value = quantity;
             if (String(quantity) === String(lastSyncedQuantity)) return;
+
             clearTimeout(typingTimer);
             syncQuantity(quantity).catch((err) => {
                 if (err.name !== "AbortError") console.error("Cart submit sync error:", err);
@@ -436,10 +464,12 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
 
                 if (row) row.remove();
+
                 refreshCartUI(data);
                 _lastConfirmed.badgeCount = Number(data.items_count);
                 _lastConfirmed.itemsCountText = `${data.items_count} шт.`;
                 _lastConfirmed.cartTotalText = formatPrice(data.total_price);
+
                 deleteSnapshot(productId);
                 deleteController(productId);
 
@@ -458,11 +488,12 @@ document.addEventListener("DOMContentLoaded", () => {
                     _lastConfirmed.cartTotalText = snap.cartTotalText;
                     restoreGlobals(snap);
                 }
+
                 deleteSnapshot(productId);
                 deleteController(productId);
+
                 Toast.show("error", "Ошибка при удалении товара");
             }
         });
     }
-
 });
