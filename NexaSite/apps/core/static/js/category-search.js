@@ -1,10 +1,11 @@
 function normalize(s) {
+    if (!s) return "";
     return s.toLowerCase().replace(/ё/g, "е").trim();
 }
 
 function damerauLevenshtein(a, b) {
     const m = a.length, n = b.length;
-    const d = Array.from({ length: m + 1 }, () => new Array(n + 1).fill(0));
+    const d = Array.from({ length: m + 1 }, () => new Array(n + 1));
 
     for (let i = 0; i <= m; i++) d[i][0] = i;
     for (let j = 0; j <= n; j++) d[0][j] = j;
@@ -32,43 +33,61 @@ function similarity(a, b) {
     if (na.length === 0 && nb.length === 0) return 1;
 
     const maxLen = Math.max(na.length, nb.length);
-    if (maxLen === 0) return 1;
-
     return 1 - damerauLevenshtein(na, nb) / maxLen;
 }
 
 const input = document.getElementById("categorySearch");
-const cards = Array.from(document.querySelectorAll(".category-card"));
+const cards = input
+    ? Array.from(document.querySelectorAll(".category-card")).filter(c => c.dataset.name)
+    : [];
 const noResultsMessage = document.getElementById("noResultsMessage");
 
-input.addEventListener("input", function () {
-    const value = input.value.trim();
-    if (!value) {
-        cards.forEach(c => { c.style.display = ""; });
-        noResultsMessage.style.display = "none";
-        return;
-    }
-
-    const scored = cards.map(card => ({
-        card,
-        name: card.dataset.name,
-        score: similarity(value, card.dataset.name)
-    }));
-
-    const matched = scored.filter(s => s.score > 0.4 || s.name.includes(value));
-    matched.sort((a, b) => b.score - a.score);
-
-    cards.forEach(c => { c.style.display = "none"; });
-    matched.forEach(s => { s.card.style.display = ""; });
-
-    matched.forEach((s, i) => {
-        const parent = s.card.parentNode;
-        const ref = parent.children[i];
-
-        if (ref !== s.card) {
-            parent.insertBefore(s.card, ref);
+if (input) {
+    let debounceTimer;
+    input.addEventListener("input", function () {
+        const value = input.value.trim();
+        if (!value) {
+            clearTimeout(debounceTimer);
+            cards.forEach(c => { c.style.display = ""; });
+            if (noResultsMessage) noResultsMessage.style.display = "none";
+            return;
         }
-    });
 
-    noResultsMessage.style.display = matched.length === 0 ? "block" : "none";
-});
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(() => {
+            const normValue = normalize(value);
+            const scored = cards.map(card => {
+                const name = card.dataset.name;
+                return {
+                    card,
+                    score: similarity(normValue, name),
+                    normName: normalize(name)
+                };
+            });
+
+            const matched = scored.filter(s => s.score > 0.4 || s.normName.includes(normValue));
+            matched.sort((a, b) => b.score - a.score);
+
+            cards.forEach(c => { c.style.display = "none"; });
+            matched.forEach(s => { s.card.style.display = ""; });
+
+            const byParent = new Map();
+            matched.forEach(s => {
+                const p = s.card.parentNode;
+                if (!byParent.has(p)) byParent.set(p, []);
+                byParent.get(p).push(s.card);
+            });
+
+            byParent.forEach((children, parent) => {
+                children.forEach((card, i) => {
+                    const ref = parent.children[i];
+                    if (ref !== card) {
+                        parent.insertBefore(card, ref);
+                    }
+                });
+            });
+
+            if (noResultsMessage) noResultsMessage.style.display = matched.length === 0 ? "block" : "none";
+        }, 150);
+    });
+}
