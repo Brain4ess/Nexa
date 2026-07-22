@@ -27,7 +27,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const updateCartBadge = (count) => {
         document.querySelectorAll(".cart-badge").forEach((badge) => {
             if (count > 0) {
-                badge.textContent = count;
+                badge.textContent = count > 99 ? "99+" : count;
                 badge.style.display = "inline-block";
             } else {
                 badge.style.display = "none";
@@ -85,7 +85,7 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     const _lastConfirmed = {
-        badgeCount: Number(document.querySelector(".cart-badge")?.textContent || 0),
+        badgeCount: Number((document.querySelector(".cart-badge")?.textContent || "0").replace("99+", "100")),
         itemsCountText: document.querySelector("[data-cart-items-count]")?.textContent || "0 шт.",
         cartTotalText: document.querySelector("[data-cart-total]")?.textContent || "0 ₽"
     };
