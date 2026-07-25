@@ -44,7 +44,7 @@ def catalog_view(request, slug=None):
             reviews_total=Count("reviews", filter=Q(reviews__is_approved=True)),
         )
 
-        paginator = Paginator(products_qs, 10)
+        paginator = Paginator(products_qs.order_by("id"), 10)
         page_obj = paginator.get_page(request.GET.get("page"))
         products = page_obj.object_list
         page_numbers = get_page_numbers(paginator, page_obj.number)
