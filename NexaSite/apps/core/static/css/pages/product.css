@@ -714,7 +714,7 @@ html[data-theme="dark"] .main-image img.placeholder {
     opacity: 1;
 }
 
-.review-edit-form {
+.review-addition-form {
     margin-top: 14px;
     display: flex;
     flex-direction: column;
@@ -807,7 +807,7 @@ html[data-theme="dark"] .main-image img.placeholder {
 .review-form input[type="text"],
 .review-form textarea,
 .review-form select,
-.review-edit-form textarea {
+.review-addition-form textarea {
     width: 100%;
     border: 1px solid var(--card-border);
     border-radius: 12px;
@@ -819,7 +819,7 @@ html[data-theme="dark"] .main-image img.placeholder {
 }
 
 .review-form textarea,
-.review-edit-form textarea {
+.review-addition-form textarea {
     resize: none;
     min-height: 160px;
     max-height: 320px;
@@ -832,17 +832,17 @@ html[data-theme="dark"] .main-image img.placeholder {
 }
 
 .review-form textarea::-webkit-scrollbar,
-.review-edit-form textarea::-webkit-scrollbar {
+.review-addition-form textarea::-webkit-scrollbar {
     width: 10px;
 }
 
 .review-form textarea::-webkit-scrollbar-track,
-.review-edit-form textarea::-webkit-scrollbar-track {
+.review-addition-form textarea::-webkit-scrollbar-track {
     background: transparent;
 }
 
 .review-form textarea::-webkit-scrollbar-thumb,
-.review-edit-form textarea::-webkit-scrollbar-thumb {
+.review-addition-form textarea::-webkit-scrollbar-thumb {
     background: rgba(148, 163, 184, 0.45);
     border-radius: 999px;
     border: 3px solid transparent;
@@ -852,7 +852,7 @@ html[data-theme="dark"] .main-image img.placeholder {
 .review-form input[type="text"]:focus,
 .review-form textarea:focus,
 .review-form select:focus,
-.review-edit-form textarea:focus {
+.review-addition-form textarea:focus {
     border-color: rgba(37, 99, 235, 0.55);
     box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
 }

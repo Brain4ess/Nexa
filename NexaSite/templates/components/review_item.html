@@ -42,7 +42,7 @@
                 <button
                     type="button"
                     class="review-action-btn review-action-btn--primary"
-                    data-review-edit-toggle
+                     data-review-addition-toggle
                     aria-expanded="false"
                 >
                     Дополнить отзыв
@@ -106,8 +106,8 @@
     {% endif %}
 
     {% if user.is_authenticated and user.id == review.user_id and review.can_add_update %}
-        <div class="review-edit-panel" data-review-edit-panel hidden>
-            <form class="review-edit-form" action="{% url 'product_review_update' review.product.slug review.id %}" method="post">
+        <div class="review-addition-panel" data-review-addition-panel hidden>
+            <form class="review-addition-form" action="{% url 'product_review_update' review.product.slug review.id %}" method="post">
                 {% csrf_token %}
 
                 <div class="review-form__field">

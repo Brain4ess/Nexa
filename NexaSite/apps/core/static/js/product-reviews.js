@@ -1,4 +1,6 @@
 document.addEventListener("DOMContentLoaded", () => {
+    // === Utilities ===
+
     const getCSRFToken = () => {
         const name = "csrftoken";
         const cookies = document.cookie.split(";");
@@ -53,6 +55,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     decorateReviewTimes();
 
+    // === Tab system ===
+
     const tabs = Array.from(document.querySelectorAll("[data-product-tab]"));
     const panels = Array.from(document.querySelectorAll("[data-product-panel]"));
     const indicator = document.getElementById("productTabsIndicator");
@@ -80,6 +84,8 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     activateTab("specs");
+
+    // === Rating input ===
 
     const ratingInput = document.getElementById("reviewRatingInput");
     const ratingHint = document.getElementById("reviewRatingHint");
@@ -126,6 +132,8 @@ document.addEventListener("DOMContentLoaded", () => {
             renderStarState(Number(ratingInput?.value || 0), null);
         });
     }
+
+    // === Form counters & clamps ===
 
     const reviewForm = document.getElementById("reviewForm");
     const reviewError = document.getElementById("reviewFormError");
@@ -194,11 +202,13 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     document.addEventListener("input", (e) => {
-        const textarea = e.target.closest(".review-edit-form textarea");
+        const textarea = e.target.closest(".review-addition-form textarea");
         if (!textarea) return;
 
         clampReviewUpdateText(textarea);
     });
+
+    // === Review cards init ===
 
     const updateRatingWidgets = (averageRating, reviewsCount) => {
         const count = Number(reviewsCount || 0);
@@ -228,6 +238,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const initReviewCard = (card) => {
         if (!card) return;
 
+        // === Text toggle ===
+
         const text = card.querySelector("[data-review-text]");
         const textToggle = card.querySelector("[data-review-text-toggle]");
         const updatesWrap = card.querySelector("[data-review-updates]");
@@ -244,22 +256,28 @@ document.addEventListener("DOMContentLoaded", () => {
             textToggle.setAttribute("aria-expanded", "false");
         }
 
+        // === Updates wrap ===
+
         if (updatesWrap && updatesToggle) {
             updatesWrap.classList.add("is-hidden");
             updatesToggle.textContent = "Показать дополнения";
             updatesToggle.setAttribute("aria-expanded", "false");
         }
 
-        const editToggle = card.querySelector("[data-review-edit-toggle]");
-        const editPanel = card.querySelector("[data-review-edit-panel]");
+        const additionToggle = card.querySelector("[data-review-addition-toggle]");
+        const additionPanel = card.querySelector("[data-review-addition-panel]");
 
-        if (editToggle && editPanel && editPanel.hasAttribute("hidden")) {
-            editToggle.textContent = "Дополнить отзыв";
-            editToggle.setAttribute("aria-expanded", "false");
+        if (additionToggle && additionPanel && additionPanel.hasAttribute("hidden")) {
+            additionToggle.textContent = "Дополнить отзыв";
+            additionToggle.setAttribute("aria-expanded", "false");
         }
+
+        // === Addition panel ===
 
         const updateTextarea = card.querySelector("[data-review-update-text]");
         const updateCounter = card.querySelector("[data-review-update-counter]");
+
+        // === Sync & clamp ===
 
         const syncUpdateCounter = () => {
             if (!updateTextarea || !updateCounter) return;
@@ -273,6 +291,8 @@ document.addEventListener("DOMContentLoaded", () => {
             clampReviewUpdateText(updateTextarea);
             syncUpdateCounter();
         };
+
+        // === Event listeners ===
 
         if (updateTextarea && updateCounter) {
             updateTextarea.addEventListener("input", clampAndSyncUpdate);
@@ -290,6 +310,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     initReviewCards();
 
+    // === Card manipulation ===
+
     const replaceReviewCard = (reviewId, html) => {
         const oldCard = document.querySelector(`[data-review-id="${reviewId}"]`);
         if (!oldCard) return;
@@ -301,6 +323,8 @@ document.addEventListener("DOMContentLoaded", () => {
         initReviewCard(newCard);
         decorateReviewTimes(newCard);
     };
+
+    // === Remove handlers ===
 
     const removeReviewCard = (reviewId) => {
         const card = document.querySelector(`[data-review-id="${reviewId}"]`);
@@ -315,6 +339,8 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         }
     };
+
+    // === Card toggles ===
 
     document.addEventListener("click", (e) => {
         const textToggle = e.target.closest("[data-review-text-toggle]");
@@ -344,27 +370,29 @@ document.addEventListener("DOMContentLoaded", () => {
             return;
         }
 
-        const editToggle = e.target.closest("[data-review-edit-toggle]");
-        if (editToggle) {
-            const card = editToggle.closest(".review-card");
-            const panel = card?.querySelector("[data-review-edit-panel]");
+        const additionToggle = e.target.closest("[data-review-addition-toggle]");
+        if (additionToggle) {
+            const card = additionToggle.closest(".review-card");
+            const panel = card?.querySelector("[data-review-addition-panel]");
             if (!panel) return;
 
             const isHidden = panel.hasAttribute("hidden");
 
             if (isHidden) {
                 panel.removeAttribute("hidden");
-                editToggle.textContent = "Скрыть";
-                editToggle.setAttribute("aria-expanded", "true");
+                additionToggle.textContent = "Скрыть";
+                additionToggle.setAttribute("aria-expanded", "true");
             } else {
                 panel.setAttribute("hidden", "");
-                editToggle.textContent = "Дополнить отзыв";
-                editToggle.setAttribute("aria-expanded", "false");
+                additionToggle.textContent = "Дополнить отзыв";
+                additionToggle.setAttribute("aria-expanded", "false");
             }
 
             return;
         }
     });
+
+    // === Addition/delete forms ===
 
     document.addEventListener("submit", async (e) => {
         const deleteForm = e.target.closest(".review-delete-form");
@@ -411,24 +439,24 @@ document.addEventListener("DOMContentLoaded", () => {
             return;
         }
 
-        const editForm = e.target.closest(".review-edit-form");
-        if (editForm) {
+        const additionForm = e.target.closest(".review-addition-form");
+        if (additionForm) {
             e.preventDefault();
 
-            const errorBox = editForm.querySelector(".review-form__error");
+            const errorBox = additionForm.querySelector(".review-form__error");
             if (errorBox) {
                 errorBox.hidden = true;
                 errorBox.textContent = "";
             }
 
             try {
-                const response = await fetch(editForm.action, {
+                const response = await fetch(additionForm.action, {
                     method: "POST",
                     headers: {
                         "X-CSRFToken": getCSRFToken(),
                         "X-Requested-With": "XMLHttpRequest"
                     },
-                    body: new FormData(editForm)
+                    body: new FormData(additionForm)
                 });
 
                 const data = await response.json();
@@ -441,15 +469,15 @@ document.addEventListener("DOMContentLoaded", () => {
                     return;
                 }
 
-                const card = editForm.closest(".review-card");
+                const card = additionForm.closest(".review-card");
                 const reviewId = card?.dataset.reviewId;
 
                 if (reviewId && data.review_html) {
                     replaceReviewCard(reviewId, data.review_html);
                 }
 
-                const panel = card?.querySelector("[data-review-edit-panel]");
-                const toggle = card?.querySelector("[data-review-edit-toggle]");
+                const panel = card?.querySelector("[data-review-addition-panel]");
+                const toggle = card?.querySelector("[data-review-addition-toggle]");
 
                 if (panel) {
                     panel.setAttribute("hidden", "");
@@ -471,6 +499,8 @@ document.addEventListener("DOMContentLoaded", () => {
             return;
         }
     });
+
+    // === New review form ===
 
     if (reviewForm) {
         reviewForm.addEventListener("submit", async (e) => {
@@ -540,6 +570,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 decorateReviewTimes(document);
             } catch (error) {
                 console.error("Review submit error:", error);
+
                 if (reviewError) {
                     reviewError.hidden = false;
                     reviewError.textContent = "Не удалось отправить отзыв";
@@ -547,6 +578,8 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         });
     }
+
+    // === Load more ===
 
     if (moreButton && reviewsList) {
         moreButton.addEventListener("click", async () => {
@@ -565,7 +598,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 });
 
                 const data = await response.json();
-
                 if (!data.ok) return;
 
                 if (data.html) {

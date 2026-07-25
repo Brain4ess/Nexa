@@ -1,18 +1,23 @@
 document.addEventListener("DOMContentLoaded", () => {
+    // === Utilities ===
+
     const getCSRFToken = () => {
         const name = "csrftoken";
         const cookies = document.cookie.split(";");
+
         for (let cookie of cookies) {
             cookie = cookie.trim();
             if (cookie.startsWith(name + "=")) {
                 return cookie.substring(name.length + 1);
             }
         }
+
         return "";
     };
 
     const formatPrice = (value) => {
         const number = Number(String(value).replace(",", ".")) || 0;
+
         return `${number.toLocaleString("ru-RU", {
             minimumFractionDigits: 0,
             maximumFractionDigits: 2
@@ -21,6 +26,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const parsePrice = (text) => {
         const cleaned = String(text).replace(/[^\d.,\-]/g, "").replace(",", ".");
+
         return Number(cleaned) || 0;
     };
 
@@ -84,6 +90,8 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     };
 
+    // === State tracking ===
+
     const _lastConfirmed = {
         badgeCount: Number((document.querySelector(".cart-badge")?.textContent || "0").replace("99+", "100")),
         itemsCountText: document.querySelector("[data-cart-items-count]")?.textContent || "0 шт.",
@@ -105,6 +113,8 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     };
 
+    // === Network helpers ===
+
     const sendCartRequest = async (url, formData, signal) => {
         const response = await fetch(url, {
             method: "POST",
@@ -116,6 +126,7 @@ document.addEventListener("DOMContentLoaded", () => {
             signal
         });
         const data = await response.json();
+
         return { response, data };
     };
 
@@ -129,6 +140,8 @@ document.addEventListener("DOMContentLoaded", () => {
             updateCartTotal(data.total_price);
         }
     };
+
+    // === Confirm modal ===
 
     const confirmModal = document.getElementById("confirmModal");
     const modalConfirmButton = document.getElementById("confirmModalConfirm");
@@ -178,6 +191,8 @@ document.addEventListener("DOMContentLoaded", () => {
         if (e.key === "Escape") closeConfirmModal();
     });
 
+    // === Add to cart handlers ===
+
     document.querySelectorAll(".add-to-cart-form").forEach((form) => {
         form.addEventListener("submit", async (e) => {
             e.preventDefault();
@@ -198,6 +213,7 @@ document.addEventListener("DOMContentLoaded", () => {
                         Toast.show("error", "Недостаточно товара");
                         return;
                     }
+
                     Toast.show("error", data.error || "Ошибка");
                     return;
                 }
@@ -225,6 +241,8 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         });
     });
+
+    // === Quantity controls ===
 
     document.querySelectorAll(".cart-quantity-form").forEach((form) => {
         const qtyInput = form.querySelector('input[name="quantity"]');
@@ -258,11 +276,13 @@ document.addEventListener("DOMContentLoaded", () => {
             if (productRow) {
                 const inputEl = productRow.querySelector('input[name="quantity"]');
                 const totalEl = productRow.querySelector("[data-cart-item-total]");
+
                 if (inputEl) {
                     inputEl.value = snap.quantity;
                     lastSyncedQuantity = snap.quantity;
                 }
                 if (totalEl && snap.itemTotalText) totalEl.textContent = snap.itemTotalText;
+
                 console.error("Cart rollback: product", productId, "restored to qty", snap.quantity);
             }
 
@@ -405,6 +425,8 @@ document.addEventListener("DOMContentLoaded", () => {
             });
         });
     });
+
+    // === Remove handlers ===
 
     document.querySelectorAll(".cart-remove-form").forEach((form) => {
         form.addEventListener("submit", (e) => {
