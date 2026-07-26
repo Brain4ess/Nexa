@@ -93,7 +93,11 @@ document.addEventListener("DOMContentLoaded", () => {
     // === State tracking ===
 
     const _lastConfirmed = {
-        badgeCount: Number((document.querySelector(".cart-badge")?.textContent || "0").replace("99+", "100")),
+        badgeCount: (() => {
+            const el = document.querySelector("[data-cart-items-count]");
+            if (el) return parseInt(el.textContent, 10) || 0;
+            return Number((document.querySelector(".cart-badge")?.textContent || "0").replace("99+", "100"));
+        })(),
         itemsCountText: document.querySelector("[data-cart-items-count]")?.textContent || "0 шт.",
         cartTotalText: document.querySelector("[data-cart-total]")?.textContent || "0 ₽"
     };
@@ -244,6 +248,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // === Quantity controls ===
 
+    const SYNC_DEBOUNCE_DELAY = 500;
+
     document.querySelectorAll(".cart-quantity-form").forEach((form) => {
         const qtyInput = form.querySelector('input[name="quantity"]');
         const productInput = form.querySelector('input[name="product_id"]');
@@ -253,6 +259,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         let typingTimer = null;
         let lastSyncedQuantity = qtyInput.value;
+        let inputStartValue = qtyInput.value;
 
         const clampQuantity = (value) => {
             let num = Number(value);
@@ -280,6 +287,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 if (inputEl) {
                     inputEl.value = snap.quantity;
                     lastSyncedQuantity = snap.quantity;
+                    inputStartValue = snap.quantity;
                 }
                 if (totalEl && snap.itemTotalText) totalEl.textContent = snap.itemTotalText;
 
@@ -290,7 +298,7 @@ document.addEventListener("DOMContentLoaded", () => {
             deleteSnapshot(productId);
         };
 
-        const syncQuantity = async (quantity) => {
+        const applyOptimisticQuantity = (quantity, prevQty) => {
             const productId = productInput.value;
             const confirmedQty = lastSyncedQuantity;
             const itemTotalEl = row.querySelector("[data-cart-item-total]");
@@ -309,11 +317,26 @@ document.addEventListener("DOMContentLoaded", () => {
             updateItemTotal(row, quantity);
 
             const unitPrice = parseFloat(String(row.dataset.unitPrice || "0").replace(",", ".")) || 0;
-            const delta = Number(quantity) - Number(confirmedQty);
-            if (delta && unitPrice > 0) {
-                const confirmedTotal = parsePrice(_lastConfirmed.cartTotalText);
-                updateCartTotal(Math.max(0, confirmedTotal + delta * unitPrice));
+            const incrementalDelta = Number(quantity) - Number(prevQty);
+            if (incrementalDelta && unitPrice > 0) {
+                const totalEl = document.querySelector("[data-cart-total]");
+                const currentTotal = totalEl ? parsePrice(totalEl.textContent) : parsePrice(_lastConfirmed.cartTotalText);
+                updateCartTotal(Math.max(0, currentTotal + incrementalDelta * unitPrice));
             }
+            if (incrementalDelta) {
+                const countEl = document.querySelector("[data-cart-items-count]");
+                const countText = countEl ? countEl.textContent : "";
+                const currentCount = parseInt(countText, 10) || 0;
+                const newCount = Math.max(0, currentCount + incrementalDelta);
+                updateCartBadge(newCount);
+                updateCartItemsCount(newCount);
+            }
+        };
+
+        const syncQuantity = async (quantity) => {
+            const productId = productInput.value;
+
+            applyOptimisticQuantity(quantity, qtyInput.value);
 
             const controller = new AbortController();
             _controllers[productId] = controller;
@@ -356,25 +379,30 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         };
 
+        const scheduleSync = (quantity) => {
+            clearTimeout(typingTimer);
+            typingTimer = setTimeout(() => {
+                const q = clampQuantity(quantity);
+                if (String(q) === String(lastSyncedQuantity)) return;
+                syncQuantity(q).catch((err) => {
+                    if (err.name !== "AbortError") console.error("Cart sync error:", err);
+                });
+            }, SYNC_DEBOUNCE_DELAY);
+        };
+
         const handleQuantityInput = () => {
             const raw = qtyInput.value;
             const quantity = clampQuantity(raw);
-            if (String(raw) !== String(quantity)) {
-                qtyInput.value = quantity;
-            }
 
-            updateItemTotal(row, quantity);
+            applyOptimisticQuantity(quantity, inputStartValue);
+            inputStartValue = quantity;
 
-            clearTimeout(typingTimer);
-            typingTimer = setTimeout(() => {
-                const q = clampQuantity(qtyInput.value);
-                if (String(q) === String(lastSyncedQuantity)) return;
-
-                syncQuantity(q).catch((err) => {
-                    if (err.name !== "AbortError") console.error("Cart input sync error:", err);
-                });
-            }, 300);
+            scheduleSync(qtyInput.value);
         };
+
+        qtyInput.addEventListener("focus", () => {
+            inputStartValue = qtyInput.value;
+        });
 
         qtyInput.addEventListener("input", handleQuantityInput);
 
@@ -405,10 +433,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 if (nextQuantity === currentQuantity) return;
 
-                clearTimeout(typingTimer);
-                syncQuantity(nextQuantity).catch((err) => {
-                    if (err.name !== "AbortError") console.error("Cart update error:", err);
-                });
+                applyOptimisticQuantity(nextQuantity, currentQuantity);
+                inputStartValue = nextQuantity;
+                scheduleSync(nextQuantity);
             });
         });
 

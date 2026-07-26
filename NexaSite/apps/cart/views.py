@@ -1,6 +1,7 @@
 from django.contrib import messages
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django_ratelimit.decorators import ratelimit
 from apps.catalog.models import Product
 from apps.cart.services import CartService
 
@@ -13,9 +14,13 @@ def cart_view(request):
         "items": items,
     })
 
+@ratelimit(key='ip', rate='30/m', method='POST', block=False)
 def cart_add_view(request):
     if request.method != "POST":
         return redirect("cart")
+
+    if getattr(request, 'limited', False):
+        return JsonResponse({"ok": False, "error": "Слишком много запросов. Попробуйте через минуту."}, status=429)
 
     product_id = request.POST.get("product_id")
     try:
@@ -43,9 +48,13 @@ def cart_add_view(request):
 
     return redirect(request.META.get("HTTP_REFERER", "cart"))
 
+@ratelimit(key='ip', rate='60/m', method='POST', block=False)
 def cart_update_view(request):
     if request.method != "POST":
         return redirect("cart")
+
+    if getattr(request, 'limited', False):
+        return JsonResponse({"ok": False, "error": "Слишком много запросов. Попробуйте через минуту."}, status=429)
 
     product_id = request.POST.get("product_id")
     try:
@@ -73,9 +82,13 @@ def cart_update_view(request):
 
     return redirect("cart")
 
+@ratelimit(key='ip', rate='20/m', method='POST', block=False)
 def cart_remove_view(request):
     if request.method != "POST":
         return redirect("cart")
+
+    if getattr(request, 'limited', False):
+        return JsonResponse({"ok": False, "error": "Слишком много запросов. Попробуйте через минуту."}, status=429)
 
     product_id = request.POST.get("product_id")
     product = get_object_or_404(Product, id=product_id)
