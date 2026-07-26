@@ -14,7 +14,7 @@ PASSWORD_MAX_LENGTH = 128
 LOGIN_IDENTIFIER_MAX_LENGTH = 128
 
 def _clean(value):
-    return (value or "").strip()
+    return ' '.join((value or "").split())
 
 @ratelimit(key='ip', rate='5/m', method='POST', block=False)
 def login_view(request):
@@ -84,10 +84,6 @@ def register_view(request):
 
         if len(username) > USERNAME_MAX_LENGTH:
             context["error"] = f"Имя пользователя не должно превышать {USERNAME_MAX_LENGTH} символов"
-            return render(request, "pages/register.html", context)
-
-        if " " in username:
-            context["error"] = "Имя пользователя не должно содержать пробелы"
             return render(request, "pages/register.html", context)
 
         if not email:

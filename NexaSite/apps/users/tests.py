@@ -86,11 +86,12 @@ class TestRegister:
         response = client.post("/register/", {
             "username": "new user",
             "email": "new@example.com",
-            "password": "strongpass123",
-            "password2": "strongpass123",
-        })
+            "password": "Strongpass123!",
+            "password2": "Strongpass123!",
+        }, follow=True)
 
-        assert response.status_code == 200
+        assert response.context["user"].is_authenticated
+        assert User.objects.filter(username="new user").exists()
 
     def test_register_passwords_mismatch(self, client):
         response = client.post("/register/", {
