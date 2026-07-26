@@ -11,15 +11,15 @@
 {% block content %}
 <div class="container">
 
-    <section class="section">
+    <h1 class="title">
+        {% if current_category %}
+        {{ current_category.name }}
+        {% else %}
+        Каталог
+        {% endif %}
+    </h1>
 
-        <h1 class="title">
-            {% if current_category %}
-            {{ current_category.name }}
-            {% else %}
-            Каталог
-            {% endif %}
-        </h1>
+    <section>
 
         <!-- ====== CATEGORIES MODE ====== -->
         {% if not current_category %}

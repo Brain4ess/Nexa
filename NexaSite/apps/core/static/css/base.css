@@ -57,7 +57,11 @@
     box-sizing: border-box;
 }
 
-html,
+html {
+    height: 100%;
+    overflow-y: scroll;
+}
+
 body {
     height: 100%;
 }

@@ -1,5 +1,6 @@
 .title {
     text-align: center;
+    margin-bottom: 20px;
 }
 
 /* CATEGORIES */
@@ -402,6 +403,10 @@ html[data-theme="dark"] .add-to-cart img {
 }
 
 @media (max-width: 600px) {
+    .title {
+        font-size: 1.2rem;
+    }
+
     .product-card-wrapper {
         height: 130px;
     }
