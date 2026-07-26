@@ -47,6 +47,8 @@
     height: 24px;
     align-items: center;
     justify-content: center;
+    -webkit-user-select: none;
+    user-select: none;
 }
 
 .footer-right .social-link img {
@@ -55,6 +57,9 @@
     object-fit: contain;
     display: block;
     transition: filter 0.35s ease;
+    -webkit-user-select: none;
+    user-select: none;
+    pointer-events: none;
 }
 
 html[data-theme="dark"] .footer-right .social-link img {
