@@ -2,7 +2,17 @@
 <header class="header">
     <div class="header-container">
         <div class="logo">
-            <a href="/" class="{% if request.path == '/' %}active{% endif %}">Nexa</a>
+            <a href="/" class="logo">
+                <img id="logoImg" src="{% static 'images/logo/nexa-logo-blue.svg' %}" alt="Nexa" width="100" height="100">
+            </a>
+            <script>
+                (function(){
+                    if (document.documentElement.getAttribute("data-theme") === "dark") {
+                        var logo = document.getElementById("logoImg");
+                        if (logo) logo.src = "{% static 'images/logo/nexa-logo-white.svg' %}";
+                    }
+                })();
+            </script>
         </div>
 
         <nav class="nav">
