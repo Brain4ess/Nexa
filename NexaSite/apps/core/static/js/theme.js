@@ -11,20 +11,10 @@ function updateIcon(theme) {
     }
 }
 
-function updateLogo(theme) {
-    const logo = document.getElementById("logoImg");
-    if (!logo) return;
-
-    logo.src = theme === "dark"
-        ? "/static/images/logo/nexa-logo-white.svg"
-        : "/static/images/logo/nexa-logo-blue.svg";
-}
-
 function setTheme(theme) {
     document.documentElement.setAttribute("data-theme", theme);
     localStorage.setItem(THEME_KEY, theme);
     updateIcon(theme);
-    updateLogo(theme);
 }
 
 function toggleTheme() {
