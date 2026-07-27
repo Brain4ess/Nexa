@@ -1,8 +1,8 @@
 from django.core.paginator import Paginator
 from django.shortcuts import render, get_object_or_404
-from django.db.models import Avg, Count, Q
+from django.db.models import Avg, Count, Prefetch, Q
 from apps.categories.models import Category
-from apps.catalog.models import Product
+from apps.catalog.models import AttributeGroup, Product, ProductImage
 from apps.reviews.models import Review
 from apps.reviews.selectors import approved_reviews_qs
 
@@ -39,7 +39,11 @@ def catalog_view(request, slug=None):
         products_qs = Product.objects.filter(
             category=current_category,
             is_active=True
-        ).prefetch_related("images").annotate(
+        ).prefetch_related(
+            Prefetch("images",
+                     queryset=ProductImage.objects.filter(is_main=True),
+                     to_attr="main_images")
+        ).annotate(
             reviews_avg=Avg("reviews__rating", filter=Q(reviews__is_approved=True)),
             reviews_total=Count("reviews", filter=Q(reviews__is_approved=True)),
         )
@@ -48,12 +52,6 @@ def catalog_view(request, slug=None):
         page_obj = paginator.get_page(request.GET.get("page"))
         products = page_obj.object_list
         page_numbers = get_page_numbers(paginator, page_obj.number)
-
-        for product in products:
-            product.main_image = next(
-                (img for img in product.images.all() if img.is_main),
-                product.images.first()
-            )
 
     return render(request, "pages/catalog.html", {
         "categories": categories,
@@ -65,21 +63,44 @@ def catalog_view(request, slug=None):
 
 def product_view(request, slug):
     product = get_object_or_404(
-        Product.objects.select_related("category").prefetch_related("images"),
+        Product.objects.select_related("category")
+        .prefetch_related(
+            "images",
+            "attributes__attribute__group",
+            Prefetch(
+                "category__attribute_groups",
+                queryset=AttributeGroup.objects.prefetch_related("attributes"),
+            ),
+        )
+        .annotate(
+            avg_rating=Avg("reviews__rating", filter=Q(reviews__is_approved=True)),
+            reviews_total=Count("reviews", filter=Q(reviews__is_approved=True)),
+        ),
         slug=slug
     )
 
-    reviews_qs = approved_reviews_qs(product, user=request.user)
+    attr_map = {pa.attribute_id: pa for pa in product.attributes.all()}
+    specs_data = []
+    for group in product.category.attribute_groups.all():
+        attrs = []
+        for attr in group.attributes.all():
+            pa = attr_map.get(attr.id)
+            attrs.append({"name": attr.name, "value": pa.value if pa else "—"})
+        specs_data.append({"group_name": group.name, "attributes": attrs})
 
-    reviews = list(reviews_qs[:5])
-    reviews_count = reviews_qs.count()
+    reviews_qs = approved_reviews_qs(product, user=request.user)
+    reviews = list(reviews_qs[:6])
+    has_more_reviews = len(reviews) > 5
+    reviews = reviews[:5]
+    reviews_count = product.reviews_total
 
     context = {
         "product": product,
         "reviews": reviews,
         "reviews_count": reviews_count,
-        "has_more_reviews": reviews_count > 5,
+        "has_more_reviews": has_more_reviews,
         "review_usage_choices": Review.UsagePeriod.choices,
+        "specs_data": specs_data,
     }
 
     return render(request, "pages/product.html", context)

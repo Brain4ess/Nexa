@@ -1,11 +1,17 @@
 import logging
 
 from django.db import transaction
+from django.db.models import Sum
 from apps.cart.models import Cart, CartItem
 
 logger = logging.getLogger(__name__)
 
 class CartService:
+    @staticmethod
+    def _update_cart_count_session(request, cart):
+        result = cart.items.aggregate(total=Sum("quantity"))["total"]
+        request.session["_cart_count"] = result or 0
+
     @staticmethod
     def get_cart(request):
         if request.user.is_authenticated:
@@ -29,12 +35,15 @@ class CartService:
     @transaction.atomic
     def merge_guest_cart_to_user(request, user):
         if not request.session.session_key:
-            return Cart.objects.get_or_create(user=user)[0]
+            cart = Cart.objects.get_or_create(user=user)[0]
+            CartService._update_cart_count_session(request, cart)
+            return cart
 
         guest_cart = Cart.objects.filter(session_key=request.session.session_key).first()
         user_cart, _ = Cart.objects.get_or_create(user=user)
 
         if not guest_cart or guest_cart.pk == user_cart.pk:
+            CartService._update_cart_count_session(request, user_cart)
             return user_cart
 
         for guest_item in guest_cart.items.select_related("product"):
@@ -49,6 +58,7 @@ class CartService:
                 cart_item.save(update_fields=["quantity"])
 
         guest_cart.delete()
+        CartService._update_cart_count_session(request, user_cart)
         return user_cart
 
     @staticmethod
@@ -75,6 +85,7 @@ class CartService:
             item.quantity = new_quantity
             item.save(update_fields=["quantity"])
 
+        CartService._update_cart_count_session(request, cart)
         return cart
 
     @staticmethod
@@ -88,6 +99,7 @@ class CartService:
 
         if quantity < 1:
             item.delete()
+            CartService._update_cart_count_session(request, cart)
             return cart
 
         if quantity > product.stock:
@@ -95,6 +107,7 @@ class CartService:
 
         item.quantity = quantity
         item.save(update_fields=["quantity"])
+        CartService._update_cart_count_session(request, cart)
         return cart
 
     @staticmethod
@@ -102,6 +115,7 @@ class CartService:
     def remove_product(request, product):
         cart = CartService.get_cart(request)
         CartItem.objects.filter(cart=cart, product=product).delete()
+        CartService._update_cart_count_session(request, cart)
         return cart
 
     @staticmethod
@@ -109,4 +123,5 @@ class CartService:
     def clear_cart(request):
         cart = CartService.get_cart(request)
         cart.items.all().delete()
+        CartService._update_cart_count_session(request, cart)
         return cart

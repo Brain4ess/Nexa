@@ -1,6 +1,8 @@
 from decimal import Decimal
 from django.conf import settings
 from django.db import models
+from django.db.models import F, Sum
+from django.db.models.fields import DecimalField
 from apps.catalog.models import Product
 from apps.core.mixins import TimestampMixin
 
@@ -27,14 +29,17 @@ class Cart(TimestampMixin):
 
     @property
     def items_count(self):
-        return sum(item.quantity for item in self.items.all())
+        result = self.items.aggregate(total=Sum("quantity"))["total"]
+        return result if result is not None else 0
 
     @property
     def total_price(self):
-        total = Decimal("0")
-        for item in self.items.select_related("product").all():
-            total += item.product.price * item.quantity
-        return total
+        result = self.items.aggregate(
+            total=Sum(F("quantity") * F("product__price"), output_field=DecimalField(max_digits=14, decimal_places=2))
+        )["total"]
+        if result is None:
+            return Decimal("0.00")
+        return result.quantize(Decimal("0.01"))
 
 class CartItem(TimestampMixin):
     cart = models.ForeignKey(

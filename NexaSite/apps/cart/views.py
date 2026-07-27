@@ -1,13 +1,18 @@
 from django.contrib import messages
+from django.db.models import Prefetch
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django_ratelimit.decorators import ratelimit
-from apps.catalog.models import Product
+from apps.catalog.models import Product, ProductImage
 from apps.cart.services import CartService
 
 def cart_view(request):
     cart = CartService.get_cart(request)
-    items = cart.items.select_related("product").prefetch_related("product__images")
+    items = cart.items.select_related("product").prefetch_related(
+        Prefetch("product__images",
+                 queryset=ProductImage.objects.filter(is_main=True),
+                 to_attr="main_images")
+    )
 
     return render(request, "pages/cart.html", {
         "cart": cart,

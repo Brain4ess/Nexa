@@ -54,30 +54,34 @@ class Review(TimestampMixin):
         return f"{self.product.name} - {self.rating}"
 
     @property
+    def updates_list(self):
+        return list(self.updates.all())
+
+    @property
     def updates_count(self):
-        return self.updates.count()
+        return len(self.updates_list)
 
     @property
     def can_add_update(self):
-        if self.updates_count >= 5:
+        updates = self.updates_list
+        if len(updates) >= 5:
             return False
 
-        last_update = self.updates.order_by("-created_at").first()
-        if not last_update:
+        if not updates:
             return True
 
-        return timezone.now() - last_update.created_at >= timedelta(days=3)
-    
+        return timezone.now() - updates[-1].created_at >= timedelta(days=3)
+
     @property
     def next_update_available_at(self):
-        if self.updates_count >= 5:
+        updates = self.updates_list
+        if len(updates) >= 5:
             return None
 
-        last_update = self.updates.order_by("-created_at").first()
-        if not last_update:
+        if not updates:
             return None
 
-        return last_update.created_at + timedelta(days=3)
+        return updates[-1].created_at + timedelta(days=3)
 
 def validate_max_10_lines(value):
     if len(value.splitlines()) > 10:

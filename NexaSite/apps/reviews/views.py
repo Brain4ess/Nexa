@@ -1,6 +1,7 @@
 from datetime import timedelta
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.db.models import Avg, Count
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.template.loader import render_to_string
@@ -35,9 +36,10 @@ def reviews_more_view(request, slug):
         offset = 0
 
     limit = 5
-    reviews_qs = approved_reviews_qs(product, user=request.user)
-    total = reviews_qs.count()
-    reviews = list(reviews_qs[offset:offset + limit])
+    qs = approved_reviews_qs(product, user=request.user)
+    reviews = list(qs[offset:offset + limit + 1])
+    has_more = len(reviews) > limit
+    reviews = reviews[:limit]
 
     html = render_to_string(
         "components/review_items.html",
@@ -48,7 +50,7 @@ def reviews_more_view(request, slug):
     return JsonResponse({
         "ok": True,
         "html": html,
-        "has_more": offset + limit < total,
+        "has_more": has_more,
         "next_offset": offset + len(reviews),
     })
 
@@ -118,11 +120,14 @@ def review_create_view(request, slug):
     review_html = _render_review_card(request, review)
 
     if _is_ajax(request):
+        stats = Review.objects.filter(product=product, is_approved=True).aggregate(
+            avg=Avg("rating"), count=Count("id")
+        )
         return JsonResponse({
             "ok": True,
             "review_html": review_html,
-            "average_rating": f"{product.average_rating:.1f}",
-            "reviews_count": approved_reviews_qs(product).count(),
+            "average_rating": f"{stats['avg']:.1f}" if stats["avg"] else "0.0",
+            "reviews_count": stats["count"],
         })
 
     messages.success(request, "Отзыв опубликован")
@@ -132,7 +137,10 @@ def review_create_view(request, slug):
 @require_POST
 def review_update_view(request, slug, review_id):
     product = get_object_or_404(Product, slug=slug, is_active=True)
-    review = get_object_or_404(Review, pk=review_id, product=product, user=request.user, is_approved=True)
+    review = get_object_or_404(
+        Review.objects.prefetch_related("updates"),
+        pk=review_id, product=product, user=request.user, is_approved=True
+    )
 
     text = (request.POST.get("text") or "").strip()
 
@@ -149,11 +157,11 @@ def review_update_view(request, slug, review_id):
         else:
             errors["text"] = msg
 
-    if review.updates.count() >= 5:
+    if review.updates_count >= 5:
         errors["limit"] = "Достигнут лимит дополнений"
 
-    last_update = review.updates.order_by("-created_at").first()
-    if last_update and timezone.now() - last_update.created_at < timedelta(days=3):
+    updates = review.updates_list
+    if updates and timezone.now() - updates[-1].created_at < timedelta(days=3):
         errors["cooldown"] = "Дополнение можно добавить не чаще одного раза в 3 дня"
 
     if errors:
@@ -191,11 +199,13 @@ def review_delete_view(request, slug, review_id):
     review.delete()
 
     if _is_ajax(request):
-        reviews_count = approved_reviews_qs(product).count()
+        stats = Review.objects.filter(product=product, is_approved=True).aggregate(
+            avg=Avg("rating"), count=Count("id")
+        )
         return JsonResponse({
             "ok": True,
-            "average_rating": f"{product.average_rating:.1f}",
-            "reviews_count": reviews_count,
+            "average_rating": f"{stats['avg']:.1f}" if stats["avg"] else "0.0",
+            "reviews_count": stats["count"],
         })
 
     messages.success(request, "Отзыв удален")
